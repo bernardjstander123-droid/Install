@@ -21,6 +21,24 @@ The GitHub Actions workflow compiles and validates a debug-signed APK and upload
 ## Privacy
 A key you supply in Settings is used only for direct requests to `https://api.openai.com/v1/responses`. API requests send the chat context to the provider. Chat history remains locally stored on your phone and can be cleared from within the app. The API key is encrypted on-device. Do not install APKs from sources you do not trust.
 
+## Model availability troubleshooting (v1.3)
+
+In Settings, use **Load models available to my API key**. The app calls
+`GET https://api.openai.com/v1/models` using the locally encrypted key
+and shows returned text model IDs. Selecting one fills the model ID field.
+Then tap **Check selected model access**, followed by **Save settings**.
+
+The model list is specific to the account/project associated with your key.
+Even a listed model can reject a Responses API request if its usage, key
+permissions, regional availability, billing, or parameters differ.
+
+**API key saved** only confirms there is an encrypted string on the device.
+It is not an authentication or model-access success indicator. For a
+`401`, replace an invalid key. For `403/404`, check the project's model
+usage permissions. For `429`, check Platform billing and limits. For
+`400`, inspect the sanitized error code and try another supported model.
+No API secret is added to logs or GitHub artifacts.
+
 ## Astra 7.1 3D tracking (v1.2)
 
 Tap **📷 Start camera** to request Android camera permission and activate front-camera
