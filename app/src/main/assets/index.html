@@ -51,6 +51,52 @@ textarea::placeholder{color:#91a8be}.actions{display:flex;align-items:center;jus
 @media(prefers-reduced-motion:reduce){#space,.loader .dot{animation:none}.drawer{transition:none}}
 body.lowblur .app,body.lowblur .composer,body.lowblur .card{backdrop-filter:none;-webkit-backdrop-filter:none}
 @keyframes float{to{transform:translate(2%,3%)}}@keyframes pulse{50%{opacity:.2}}
+
+/* True WebGL companion inside polished optical glass. */
+.avatarDock{width:min(100%,570px);margin:18px auto 0;border:1px solid rgba(194,240,255,.22);
+ border-radius:27px;background:linear-gradient(145deg,rgba(116,201,229,.13),rgba(52,78,128,.035) 50%,rgba(10,29,53,.07));
+ box-shadow:inset 0 1px 0 rgba(240,252,255,.17),0 16px 50px rgba(0,0,0,.18);
+ display:flex;align-items:center;gap:7px;padding:11px 13px;backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);transition:padding .24s}
+.avatarStage{width:46%;height:202px;position:relative;touch-action:none;user-select:none;flex-shrink:0}
+.avatarStage canvas{display:block;width:100%;height:100%;background:transparent;filter:drop-shadow(0 10px 16px rgba(54,209,239,.12))}
+.avatarFallback{position:absolute;inset:5px;display:none;place-items:center;font-size:70px;color:#c4faff;
+ border-radius:25px;background:radial-gradient(circle at 50% 45%,rgba(139,231,251,.23),transparent 60%);text-shadow:0 0 36px rgba(140,229,249,.5)}
+.avatarDetails{flex:1;min-width:0;padding:7px 0}
+.avatarKicker{display:flex;gap:7px;align-items:center;font-size:9px;color:#88e4f2;letter-spacing:2px;font-weight:900}
+.avatarName{font-size:22px;font-weight:800;letter-spacing:-.8px;line-height:1.1;margin:10px 0 7px}
+.avatarName em{font-style:normal;color:#a8f3ff}
+.avatarStatus{display:block;font-size:11px;color:#a3bdcf;line-height:1.6;min-height:26px}
+.avatarHint{font-size:10px;color:#7897af;line-height:1.5;margin:7px 0}
+.avatarActions{display:flex;gap:7px;flex-wrap:wrap;margin-top:9px}
+.avatarAction{background:linear-gradient(140deg,rgba(147,230,253,.13),rgba(109,156,194,.09));color:#daf5ff;
+ border:1px solid rgba(173,233,246,.25);border-radius:11px;font-size:10px;font-weight:700;padding:9px 11px}
+.avatarAction:active{background:rgba(155,237,250,.30)}
+.avatarAction.on{background:rgba(134,233,227,.23);border-color:rgba(152,237,232,.46)}
+.has-chat .avatarDock{padding:4px 15px;margin-top:8px;max-width:530px}
+.has-chat .avatarStage{height:119px;width:40%}
+.has-chat .avatarName{margin:6px 0 3px;font-size:18px}
+.has-chat .avatarHint{display:none}
+.has-chat .avatarActions{margin-top:4px}
+.has-chat .avatarAction{padding:7px 9px}
+.has-chat .avatarStatus{min-height:18px}
+.has-chat .avatarKicker{font-size:8px}
+@media(max-width:560px){
+ .avatarDock{margin:11px auto 0;padding:7px 10px;gap:6px;border-radius:22px}
+ .avatarStage{height:174px;width:46%}
+ .avatarName{font-size:19px;margin:8px 0 5px}
+ .avatarKicker{font-size:8px;letter-spacing:1.2px}
+ .avatarStatus{font-size:10px}
+ .avatarHint{font-size:9px;margin:5px 0}
+ .avatarAction{padding:8px 9px}
+ .welcome{padding-top:10px}
+ .eyebrow{margin-top:19px}
+ h1{font-size:clamp(34px,8vw,50px);margin:13px 0}
+ .cards{margin-top:22px}
+ .has-chat .avatarStage{height:111px;width:39%}
+}
+@media(max-height:740px){.avatarStage{height:145px}.has-chat .avatarStage{height:104px}}
+body.lowblur .avatarDock{backdrop-filter:none;-webkit-backdrop-filter:none}
+@media(prefers-reduced-motion:reduce){.avatarDock{transition:none}}
 </style>
 </head>
 <body>
@@ -64,8 +110,23 @@ body.lowblur .app,body.lowblur .composer,body.lowblur .card{backdrop-filter:none
  </header>
  <main>
    <div class="scroll" id="scroll">
+     <section class="avatarDock" id="avatarDock" aria-label="Astra's interactive 3D companion">
+       <div class="avatarStage" id="avatarStage">
+         <canvas id="astraAvatarCanvas" role="img" aria-label="3D synthetic humanoid avatar. Drag or tap to interact; tilt your phone to turn its head."></canvas>
+         <div id="avatarFallback" class="avatarFallback" aria-hidden="true">✧</div>
+       </div>
+       <div class="avatarDetails">
+         <div class="avatarKicker"><span class="dot"></span> LIVE 3D PRESENCE</div>
+         <div class="avatarName">ASTRA <em>7.1</em></div>
+         <span class="avatarStatus" id="avatarStatus" aria-live="polite">Move your phone • Touch to interact</span>
+         <p class="avatarHint">Tilt to look around. Tap to wave. Drag to turn.</p>
+         <div class="avatarActions">
+           <button class="avatarAction" id="avatarWave" aria-label="Make Astra wave">👋 Wave</button>
+           <button class="avatarAction" id="avatarVoice" aria-label="Toggle spoken answers">🔇 Voice off</button>
+         </div>
+       </div>
+     </section>
      <section id="welcome" class="welcome">
-       <div class="symbolouter"><div class="symbol">✧</div></div>
        <div class="eyebrow">YOUR WORLD, AMPLIFIED</div>
        <h1>Think beyond<br/><em>the ordinary.</em></h1>
        <p class="subtitle">Meet <b>Astra 7.1</b>, your private space for ambitious ideas, brilliant questions, and extraordinary creations.</p>
@@ -110,17 +171,21 @@ body.lowblur .app,body.lowblur .composer,body.lowblur .card{backdrop-filter:none
  </div>
   <div class="field"><label for="key">OpenAI Platform API key</label><input id="key" type="password" placeholder="sk-..." autocomplete="off"/><p>Encrypted on your phone using Android Keystore. Not embedded in the APK, not stored in chat history. The API is billed separately from ChatGPT.</p></div>
   <div class="field"><label><input id="lowblur" type="checkbox" style="width:auto;vertical-align:middle;margin-right:8px"/> Low blur mode (better battery life)</label></div>
+  <div class="field"><label><input id="motion" type="checkbox" checked style="width:auto;vertical-align:middle;margin-right:8px"/> React to phone tilt (accelerometer)</label>
+    <p>No camera or microphone needed. Motion sensing stays on your device and is not sent to the AI provider.</p>
+  </div>
   <button class="save" id="save">Save settings</button>
   <button class="secondarybtn" id="removekey">Remove saved API key</button>
  </div>
 </div>
 <div id="toast" role="status"></div>
+<script src="avatar.js"></script>
 <script>
 (function(){
  "use strict";
  const $=id=>document.getElementById(id);
  const native=window.AstraNative;
- const state={threads:[],id:null,model:"gpt-6-luna",busy:false};
+ const state={threads:[],id:null,model:"gpt-6-luna",busy:false,voice:false,motion:true};
  try{const obj=JSON.parse(localStorage.getItem("astra71_threads")||"[]");if(Array.isArray(obj))state.threads=obj.slice(0,40);}catch(e){}
  try{
    const stored=localStorage.getItem("astra71_model");
@@ -129,6 +194,24 @@ body.lowblur .app,body.lowblur .composer,body.lowblur .card{backdrop-filter:none
  }catch(e){}
  const low=localStorage.getItem("astra71_lowblur")==="yes";
  document.body.classList.toggle("lowblur",low);$("lowblur").checked=low;
+ state.voice=localStorage.getItem("astra71_voice")==="yes";
+ state.motion=localStorage.getItem("astra71_motion")!=="no";
+ $("motion").checked=state.motion;
+ if(native && native.setMotionEnabled) native.setMotionEnabled(state.motion);
+ window.astraMotion=function(x,y,z){if(state.motion&&window.astraAvatar)window.astraAvatar.motion(x,y,z)};
+ if(!native&&window.addEventListener)window.addEventListener("deviceorientation",e=>{
+   if(state.motion&&window.astraAvatar)window.astraAvatar.motion((e.gamma||0)/7,(e.beta||0)/7,9.8);
+ },{passive:true});
+ function voiceLabel(){$("avatarVoice").textContent=state.voice?"🔊 Voice on":"🔇 Voice off";$("avatarVoice").classList.toggle("on",state.voice);}
+ voiceLabel();
+ $("avatarWave").onclick=()=>window.astraAvatar&&window.astraAvatar.wave();
+ $("avatarVoice").onclick=()=>{
+   state.voice=!state.voice;
+   localStorage.setItem("astra71_voice",state.voice?"yes":"no");
+   if(!state.voice&&native&&native.stopSpeaking)native.stopSpeaking();
+   voiceLabel();toast(state.voice?"Spoken answers enabled.":"Spoken answers muted.");
+ };
+ window.astraSpeaking=function(enabled){if(window.astraAvatar)window.astraAvatar.setSpeaking(enabled)};
  function toast(msg){$("toast").textContent=msg;$("toast").style.display="block";setTimeout(()=>$("toast").style.display="none",3200);}
  function persist(){try{localStorage.setItem("astra71_threads",JSON.stringify(state.threads.slice(0,40)))}catch(e){toast("Local storage is unavailable.");}}
  function thread(){return state.threads.find(t=>t.id===state.id)}
@@ -147,6 +230,7 @@ body.lowblur .app,body.lowblur .composer,body.lowblur .card{backdrop-filter:none
  function render(){
    const t=thread(), msgs=t?t.messages:[];
    $("welcome").style.display=msgs.length?"none":"flex";
+   document.querySelector(".app").classList.toggle("has-chat",msgs.length>0);
    $("messages").style.display=msgs.length?"flex":"none";
    const host=$("messages");host.replaceChildren();
    for(const msg of msgs){const row=document.createElement("div");row.className="message "+msg.role;
@@ -166,14 +250,18 @@ body.lowblur .app,body.lowblur .composer,body.lowblur .card{backdrop-filter:none
    if(!native||!native.hasKey()){openSettings(true);toast("Add your API key to activate replies.");return;}
    let t=thread();if(!t){t={id:Date.now().toString(36)+Math.random().toString(36).slice(2),title:text.slice(0,45),messages:[],updated:Date.now()};state.threads.unshift(t);state.id=t.id;}
    t.messages.push({role:"user",content:text});t.updated=Date.now();
-   $("input").value="";$("error").style.display="none";state.busy=true;persist();render();
+   $("input").value="";$("error").style.display="none";state.busy=true;persist();if(window.astraAvatar)window.astraAvatar.setMode("thinking");render();
    const request={id:t.id,model:state.model,messages:t.messages.slice(-35).map(m=>({role:m.role,content:m.content}))};
    native.send(JSON.stringify(request));
  }
  window.astraReceive=function(id,reply,error){
    state.busy=false;const t=state.threads.find(t=>t.id===id);
-   if(error){$("error").textContent=error;$("error").style.display="block";}
-   else if(t){t.messages.push({role:"assistant",content:reply});t.updated=Date.now();persist();}
+   if(error){$("error").textContent=error;$("error").style.display="block";if(window.astraAvatar)window.astraAvatar.setMode("error");}
+   else if(t){
+     t.messages.push({role:"assistant",content:reply});t.updated=Date.now();persist();
+     if(window.astraAvatar){window.astraAvatar.setMode("idle");window.astraAvatar.wave();}
+     if(state.voice&&native&&native.speak)native.speak(reply);
+   }
    render();
  };
  $("menu").onclick=()=>openDrawer(true);$("scrim").onclick=()=>openDrawer(false);
@@ -203,6 +291,10 @@ body.lowblur .app,body.lowblur .composer,body.lowblur .card{backdrop-filter:none
   state.model=model;try{localStorage.setItem("astra71_model",model)}catch(e){}
   document.body.classList.toggle("lowblur",$("lowblur").checked);
   localStorage.setItem("astra71_lowblur",$("lowblur").checked?"yes":"no");
+  if(window.astraAvatar)window.astraAvatar.setQuality($("lowblur").checked?"low":"auto");
+  state.motion=$("motion").checked;
+  localStorage.setItem("astra71_motion",state.motion?"yes":"no");
+  if(native&&native.setMotionEnabled)native.setMotionEnabled(state.motion);
   openSettings(false);render();toast("Settings saved.");
  };
  $("removekey").onclick=()=>{if(native){native.clearKey();$("key").value="";render();toast("API key removed.")}};
