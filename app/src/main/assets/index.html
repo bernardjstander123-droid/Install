@@ -94,6 +94,24 @@ body.lowblur .app,body.lowblur .composer,body.lowblur .card{backdrop-filter:none
  .cards{margin-top:22px}
  .has-chat .avatarStage{height:111px;width:39%}
 }
+/* Explicit permission controls. Always off until the owner taps Start. */
+.trackingPanel{max-width:570px;width:100%;margin:9px auto 0;padding:11px 13px;
+ border-radius:17px;border:1px solid rgba(173,232,246,.22);
+ background:linear-gradient(125deg,rgba(99,178,210,.13),rgba(37,55,99,.05));
+ backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px)}
+.trackingHeader{display:flex;justify-content:space-between;align-items:center;gap:6px;
+ font-size:10px;font-weight:800;color:#d7f6ff}
+.trackingHeader span:last-child{color:#92b7c6;font-size:9px}
+.trackingButtons{display:flex;gap:8px;margin-top:9px;flex-wrap:wrap}
+.trackingButtons button{flex:1;min-width:112px;min-height:35px;border-radius:10px;
+ border:1px solid rgba(144,229,246,.28);color:#e4f7ff;
+ background:rgba(124,203,234,.12);font-size:11px;font-weight:700}
+.trackingButtons button.on{background:rgba(67,180,167,.23);border-color:rgba(126,231,200,.62)}
+.trackingFeedback{display:flex;gap:6px;justify-content:space-between;flex-wrap:wrap;color:#94b0c0;
+ font-size:9px;margin:8px 0 0;line-height:1.6}
+.trackingNotice{font-size:9px;line-height:1.5;color:#859daf;margin:5px 0 0}
+.has-chat .trackingPanel{max-width:530px}
+@media(max-width:560px){.trackingPanel{padding:9px 10px}.trackingButtons button{font-size:10px;min-height:32px}}
 @media(max-height:740px){.avatarStage{height:145px}.has-chat .avatarStage{height:104px}}
 body.lowblur .avatarDock{backdrop-filter:none;-webkit-backdrop-filter:none}
 @media(prefers-reduced-motion:reduce){.avatarDock{transition:none}}
@@ -125,6 +143,18 @@ body.lowblur .avatarDock{backdrop-filter:none;-webkit-backdrop-filter:none}
            <button class="avatarAction" id="avatarVoice" aria-label="Toggle spoken answers">🔇 Voice off</button>
          </div>
        </div>
+     </section>
+     <section id="trackingPanel" class="trackingPanel" aria-label="Camera and microphone controls">
+        <div class="trackingHeader"><span>◉ LIVE BODY & VOICE TRACKING</span><span>OFF BY DEFAULT</span></div>
+        <div class="trackingButtons">
+          <button id="cameraToggle" type="button" aria-label="Start or stop face and body camera tracking">📷 Start camera</button>
+          <button id="micToggle" type="button" aria-label="Start or stop microphone reaction tracking">🎙 Start mic</button>
+        </div>
+        <div class="trackingFeedback">
+          <span id="cameraStatus" role="status">Camera off</span>
+          <span id="microphoneStatus" role="status">Mic off</span>
+        </div>
+        <div class="trackingNotice">Android asks permission once. Camera frames and mic sound stay on your phone. Stop or leave the app to turn them off.</div>
      </section>
      <section id="welcome" class="welcome">
        <div class="eyebrow">YOUR WORLD, AMPLIFIED</div>
@@ -172,7 +202,7 @@ body.lowblur .avatarDock{backdrop-filter:none;-webkit-backdrop-filter:none}
   <div class="field"><label for="key">OpenAI Platform API key</label><input id="key" type="password" placeholder="sk-..." autocomplete="off"/><p>Encrypted on your phone using Android Keystore. Not embedded in the APK, not stored in chat history. The API is billed separately from ChatGPT.</p></div>
   <div class="field"><label><input id="lowblur" type="checkbox" style="width:auto;vertical-align:middle;margin-right:8px"/> Low blur mode (better battery life)</label></div>
   <div class="field"><label><input id="motion" type="checkbox" checked style="width:auto;vertical-align:middle;margin-right:8px"/> React to phone tilt (accelerometer)</label>
-    <p>No camera or microphone needed. Motion sensing stays on your device and is not sent to the AI provider.</p>
+    <p>Phone tilt works without camera access. Face/body tracking and microphone reaction are separate opt-in controls. No sensor images/audio are included in AI chat requests.</p>
   </div>
   <button class="save" id="save">Save settings</button>
   <button class="secondarybtn" id="removekey">Remove saved API key</button>
@@ -212,6 +242,51 @@ body.lowblur .avatarDock{backdrop-filter:none;-webkit-backdrop-filter:none}
    voiceLabel();toast(state.voice?"Spoken answers enabled.":"Spoken answers muted.");
  };
  window.astraSpeaking=function(enabled){if(window.astraAvatar)window.astraAvatar.setSpeaking(enabled)};
+ const sensorState={camera:false,microphone:false};
+ const sensorLabels={camera:$("cameraStatus"),microphone:$("microphoneStatus")};
+ function updateSensorButtons(){
+   $("cameraToggle").textContent=sensorState.camera?"⏹ Stop camera":"📷 Start camera";
+   $("micToggle").textContent=sensorState.microphone?"⏹ Stop mic":"🎙 Start mic";
+   $("cameraToggle").classList.toggle("on",sensorState.camera);
+   $("micToggle").classList.toggle("on",sensorState.microphone);
+   $("cameraToggle").setAttribute("aria-pressed",String(sensorState.camera));
+   $("micToggle").setAttribute("aria-pressed",String(sensorState.microphone));
+ }
+ window.astraSensorStatus=function(type,message){
+   if(type!=="camera"&&type!=="microphone")return;
+   sensorLabels[type].textContent=message;
+   if(type==="camera"){
+     if(/camera.*active|tracking active/i.test(message))sensorState.camera=true;
+     if(/off|denied|disconnected|failed|error|unavailable|required/i.test(message))sensorState.camera=false;
+   }else{
+     if(/mic reactive/i.test(message))sensorState.microphone=true;
+     if(/off|denied|unavailable|failed|error|required/i.test(message))sensorState.microphone=false;
+   }
+   updateSensorButtons();
+ };
+ window.astraTracking=function(frame){
+   if(window.astraAvatar)window.astraAvatar.setTracking(frame);
+   if(sensorState.camera){
+     $("cameraStatus").textContent=(frame&&frame.face?"Face ✓":"Face searching")+
+       " • "+(frame&&frame.body?"Body ✓":"Body searching");
+   }
+ };
+ window.astraMicLevel=function(level){
+   if(window.astraAvatar)window.astraAvatar.setMicLevel(level);
+ };
+ $("cameraToggle").onclick=()=>{
+   if(!native||!native.startCameraTracking){toast("Camera tracking is available inside the Android APK.");return;}
+   if(sensorState.camera){native.stopCameraTracking();sensorState.camera=false;}
+   else{sensorLabels.camera.textContent="Opening Android camera permission...";native.startCameraTracking();}
+   updateSensorButtons();
+ };
+ $("micToggle").onclick=()=>{
+   if(!native||!native.startMicTracking){toast("Mic tracking is available inside the Android APK.");return;}
+   if(sensorState.microphone){native.stopMicTracking();sensorState.microphone=false;}
+   else{sensorLabels.microphone.textContent="Opening Android mic permission...";native.startMicTracking();}
+   updateSensorButtons();
+ };
+ updateSensorButtons();
  function toast(msg){$("toast").textContent=msg;$("toast").style.display="block";setTimeout(()=>$("toast").style.display="none",3200);}
  function persist(){try{localStorage.setItem("astra71_threads",JSON.stringify(state.threads.slice(0,40)))}catch(e){toast("Local storage is unavailable.");}}
  function thread(){return state.threads.find(t=>t.id===state.id)}
