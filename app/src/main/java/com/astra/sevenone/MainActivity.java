@@ -11,6 +11,8 @@ import android.webkit.WebView;
 import android.webkit.WebViewClient;
 import android.webkit.WebSettings;
 import android.webkit.WebResourceRequest;
+import android.widget.FrameLayout;
+import android.net.Uri;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.security.keystore.KeyGenParameterSpec;
@@ -65,15 +67,22 @@ public class MainActivity extends Activity {
                 return true;
             }
         });
+        // Android 15+ draws edge-to-edge even for older layouts. Apply the system
+        // bar insets on the parent so the WebView is laid out below status/navigation.
+        FrameLayout root = new FrameLayout(this);
+        root.addView(web, new FrameLayout.LayoutParams(
+            FrameLayout.LayoutParams.MATCH_PARENT,
+            FrameLayout.LayoutParams.MATCH_PARENT));
         if (Build.VERSION.SDK_INT >= 30) {
-            web.setOnApplyWindowInsetsListener((v, ins) -> {
+            root.setOnApplyWindowInsetsListener((v, ins) -> {
                 Insets edges = ins.getInsets(WindowInsets.Type.systemBars());
                 v.setPadding(edges.left, edges.top, edges.right, edges.bottom);
                 return ins;
             });
         }
         web.addJavascriptInterface(new NativeBridge(), "AstraNative");
-        setContentView(web);
+        setContentView(root);
+        if (Build.VERSION.SDK_INT >= 30) root.requestApplyInsets();
         web.loadUrl("file:///android_asset/index.html");
     }
 
@@ -139,6 +148,55 @@ public class MainActivity extends Activity {
         @JavascriptInterface public void send(String raw) {
             background.execute(() -> handleMessage(raw));
         }
+        @JavascriptInterface public void checkModel(String model) {
+            background.execute(() -> checkModelAccess(model));
+        }
+    }
+
+    private void reportModelStatus(String message) {
+        runOnUiThread(() -> {
+            if (web != null) {
+                web.evaluateJavascript(
+                    "window.astraModelStatus(" + JSONObject.quote(message) + ");", null);
+            }
+        });
+    }
+
+    private void checkModelAccess(String model) {
+        if (model == null || !model.matches("[A-Za-z0-9._:/-]{1,90}")) {
+            reportModelStatus("Enter a valid model ID.");
+            return;
+        }
+        HttpsURLConnection connection = null;
+        try {
+            String key = readApiKey();
+            if (key.isEmpty()) {
+                reportModelStatus("Save an API key first.");
+                return;
+            }
+            URL url = new URL("https://api.openai.com/v1/models/" + Uri.encode(model));
+            connection = (HttpsURLConnection) url.openConnection();
+            connection.setRequestMethod("GET");
+            connection.setConnectTimeout(12000);
+            connection.setReadTimeout(15000);
+            connection.setRequestProperty("Authorization", "Bearer " + key);
+            int status = connection.getResponseCode();
+            if (status == 200) {
+                reportModelStatus("Model is listed for this key. Save settings and try a message.");
+            } else if (status == 401) {
+                reportModelStatus("API key was rejected. Generate or select a valid project key.");
+            } else if (status == 403 || status == 404) {
+                reportModelStatus("This key cannot access " + model + ". Choose another model.");
+            } else if (status == 429) {
+                reportModelStatus("API limit reached. Check Platform billing or try later.");
+            } else {
+                reportModelStatus("Model check failed (HTTP " + status + ").");
+            }
+        } catch (Exception ignored) {
+            reportModelStatus("Could not reach OpenAI. Check your connection.");
+        } finally {
+            if (connection != null) connection.disconnect();
+        }
     }
 
     private void handleMessage(String raw) {
@@ -147,7 +205,7 @@ public class MainActivity extends Activity {
             JSONObject cmd = new JSONObject(raw);
             requestId = cmd.optString("id", "");
             if (requestId.length() > 60) throw new Exception("Invalid request ID");
-            String model = cmd.optString("model", "gpt-6");
+            String model = cmd.optString("model", "gpt-6-luna");
             if (!model.matches("[A-Za-z0-9._:/-]{1,90}")) throw new Exception("Invalid model ID");
             JSONArray msgs = cmd.getJSONArray("messages");
             if (msgs.length() < 1 || msgs.length() > 35) throw new Exception("Too many messages in conversation");
@@ -188,9 +246,17 @@ public class MainActivity extends Activity {
             }
             con.disconnect();
             if (status < 200 || status >= 300) {
-                String msg = status == 401 ? "Invalid API key." :
-                    status == 429 ? "API rate or billing limit reached." :
-                    (status == 400 || status == 404) ? "Model not available. Change your model ID in Settings." :
+                String providerCode = "";
+                try {
+                    JSONObject providerError = new JSONObject(sb.toString()).optJSONObject("error");
+                    if (providerError != null) providerCode = providerError.optString("code", "");
+                } catch (Exception ignored) { }
+                String msg = status == 401 ? "API key rejected. Check your OpenAI Platform key." :
+                    status == 429 ? "API rate or billing limit reached. Check Platform billing." :
+                    (status == 404 || "model_not_found".equals(providerCode)) ?
+                        "Model " + model + " is not available for this API key. Try gpt-6-luna in Settings." :
+                    status == 400 ? "The API rejected this request (400). Check model access and parameters." :
+                    status == 403 ? "Your project does not have permission to use this model." :
                     "AI provider error (" + status + ").";
                 throw new Exception(msg);
             }
