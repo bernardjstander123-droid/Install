@@ -45,6 +45,10 @@ textarea::placeholder{color:#91a8be}.actions{display:flex;align-items:center;jus
 .preset{padding:10px 11px;border-radius:11px;border:1px solid rgba(156,223,246,.28);background:rgba(120,223,245,.10);color:#d2f4ff;font-size:11px}
 .preset:active{background:rgba(143,234,254,.25)}
 #modelstatus{color:#b2e8f4!important;min-height:17px}
+.modelSelectLabel{display:block;font-size:11px;font-weight:650;color:#c9edf5;margin:11px 0 7px}
+.modelSelect{display:block;width:100%;padding:12px 13px;border-radius:12px;border:1px solid rgba(158,235,246,.28);background:#17263b;color:#ecfaff;font-size:12px}
+.modelHelp{font-size:11px;color:#a6bdd1;line-height:1.65}
+.modelSelect option{background:#111b31;color:white}
 #toast{position:fixed;bottom:119px;left:50%;transform:translateX(-50%);width:max-content;max-width:90vw;padding:12px 18px;border:1px solid rgba(180,232,248,.3);border-radius:13px;background:#10243a;color:#e1f9ff;font-size:12px;display:none;z-index:33}
 @media(min-width:740px){.app{max-width:100%;}.welcome{padding:45px}.cards{flex-direction:row;max-width:800px}.card{flex:1;min-height:115px}.composerarea{max-width:850px;width:100%;margin:auto}.scroll{padding:28px 8vw}}
 @media(max-height:740px){.symbolouter{height:80px;width:80px;border-radius:25px}.symbol{width:61px;height:61px;border-radius:19px;font-size:30px}.eyebrow{margin-top:25px}.welcome{padding-top:10px}.cards{margin-top:20px}.card{padding:11px}}
@@ -196,8 +200,14 @@ body.lowblur .avatarDock{backdrop-filter:none;-webkit-backdrop-filter:none}
      <button type="button" class="preset" data-model="gpt-6.1-terra">Terra · balanced</button>
      <button type="button" class="preset" data-model="gpt-6-astra">Astra · premium cost</button>
    </div>
-   <button type="button" class="secondarybtn" id="testmodel">Check model access</button>
+   <button type="button" class="secondarybtn" id="loadmodels">🔎 Load models available to my API key</button>
+   <label for="modelchoices" class="modelSelectLabel">Available model IDs from your project</label>
+   <select id="modelchoices" class="modelSelect" aria-label="Choose an available OpenAI API model">
+      <option value="">Tap Load models first</option>
+   </select>
+   <button type="button" class="secondarybtn" id="testmodel">Check selected model access</button>
    <p id="modelstatus" role="status" aria-live="polite"></p>
+   <p class="modelHelp">Seeing “Model not available”? Your key may belong to another project or lack permission. Loading models checks your own saved key, not a public catalog.</p>
  </div>
   <div class="field"><label for="key">OpenAI Platform API key</label><input id="key" type="password" placeholder="sk-..." autocomplete="off"/><p>Encrypted on your phone using Android Keystore. Not embedded in the APK, not stored in chat history. The API is billed separately from ChatGPT.</p></div>
   <div class="field"><label><input id="lowblur" type="checkbox" style="width:auto;vertical-align:middle;margin-right:8px"/> Low blur mode (better battery life)</label></div>
@@ -352,11 +362,52 @@ body.lowblur .avatarDock{backdrop-filter:none;-webkit-backdrop-filter:none}
  $("testmodel").onclick=()=>{
    const chosen=$("model").value.trim();
    if(!/^[A-Za-z0-9._:/-]{1,90}$/.test(chosen)){toast("Enter a valid model ID.");return;}
+   const key=$("key").value.trim();
+   if(key&&native&&native.saveKey){
+     if(!native.saveKey(key)){$("modelstatus").textContent="Could not save the API key.";return;}
+     $("key").value="";
+   }
    if(!native||!native.hasKey()){$("modelstatus").textContent="Save your API key first.";return;}
    $("modelstatus").textContent="Checking model availability for your API key...";
    native.checkModel(chosen);
  };
  window.astraModelStatus=function(message){$("modelstatus").textContent=message;};
+ $("loadmodels").onclick=()=>{
+   if(!native||!native.listAvailableModels){
+     $("modelstatus").textContent="Update to the latest Astra 7.1 Android APK to load model IDs.";
+     return;
+   }
+   const key=$("key").value.trim();
+   if(key && native.saveKey){
+     if(!native.saveKey(key)){$("modelstatus").textContent="Could not save API key.";return;}
+     $("key").value="";
+   }
+   if(!native.hasKey()){$("modelstatus").textContent="Save your API key first.";return;}
+   $("modelstatus").textContent="Checking model IDs for your saved API key...";
+   native.listAvailableModels();
+ };
+ window.astraAvailableModels=function(models,status){
+   const select=$("modelchoices");select.replaceChildren();
+   const blank=document.createElement("option");
+   blank.value="";blank.textContent="Select a model ID";
+   select.append(blank);
+   if(Array.isArray(models)){
+     for(const id of models){
+       if(typeof id!=="string"||!/^[A-Za-z0-9._:/-]{1,90}$/.test(id))continue;
+       const opt=document.createElement("option");opt.value=id;opt.textContent=id;
+       select.append(opt);
+     }
+   }
+   const current=$("model").value.trim();
+   if(Array.from(select.options).some(x=>x.value===current))select.value=current;
+   $("modelstatus").textContent=String(status||"Model list unavailable.");
+ };
+ $("modelchoices").onchange=()=>{
+   if($("modelchoices").value){
+     $("model").value=$("modelchoices").value;
+     $("modelstatus").textContent="Selected. Tap Check selected model access, then Save settings.";
+   }
+ };
  document.querySelectorAll("[data-prompt]").forEach(b=>b.onclick=()=>{$("input").value=b.dataset.prompt;$("input").focus()});
  $("save").onclick=()=>{
   const model=$("model").value.trim();
