@@ -1,0 +1,430 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover"/>
+<meta name="theme-color" content="#070c1b"/>
+<title>Astra 7.1</title>
+<style>
+:root{color-scheme:dark;--ink:#edf9ff;--muted:#93aabe;--cyan:#8cecff;--line:rgba(206,242,255,.19)}
+*{box-sizing:border-box}html,body{width:100%;margin:0;height:100%;overflow:hidden}
+body{font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;color:var(--ink);background:#070c1b;user-select:none;-webkit-tap-highlight-color:transparent}
+button,textarea,input{font:inherit}button{cursor:pointer}button:focus-visible,input:focus-visible,textarea:focus-visible{outline:2px solid var(--cyan);outline-offset:2px}
+#space{position:fixed;inset:-30%;pointer-events:none;z-index:-2;background:radial-gradient(ellipse at 71% 18%,rgba(40,162,210,.27),transparent 32%),radial-gradient(ellipse at 21% 82%,rgba(88,66,169,.27),transparent 38%),radial-gradient(ellipse at 41% 48%,rgba(62,101,140,.15),transparent 43%);animation:float 17s ease-in-out alternate infinite}
+#stars{position:fixed;inset:0;z-index:-1;pointer-events:none;background:radial-gradient(circle at 19% 17%,rgba(255,255,255,.40) 1px,transparent 2px),radial-gradient(circle at 75% 66%,rgba(255,255,255,.22) 1px,transparent 2px),linear-gradient(rgba(162,230,253,.025) 1px,transparent 1px),linear-gradient(90deg,rgba(162,230,253,.025) 1px,transparent 1px);background-size:230px 210px,310px 270px,40px 40px,40px 40px;mask-image:linear-gradient(to bottom,transparent,black 40%,transparent)}
+.app{display:flex;flex-direction:column;height:100%;height:100dvh;max-width:1120px;margin:auto;border-left:1px solid rgba(206,238,255,.07);border-right:1px solid rgba(206,238,255,.07);background:linear-gradient(140deg,rgba(37,61,86,.30),rgba(6,13,29,.48) 60%);backdrop-filter:blur(19px);-webkit-backdrop-filter:blur(19px)}
+.top{height:68px;flex-shrink:0;padding:12px 16px;display:flex;align-items:center;gap:13px;border-bottom:1px solid rgba(189,237,255,.13);background:rgba(9,23,42,.25)}
+.iconbtn{height:39px;width:39px;display:grid;place-items:center;background:rgba(176,217,243,.07);border:1px solid var(--line);color:#d4f5ff;border-radius:13px;font-size:22px}
+.logo{height:40px;width:40px;display:grid;place-items:center;border-radius:14px;color:#bcf9ff;background:linear-gradient(140deg,rgba(141,235,255,.35),rgba(114,121,191,.12));border:1px solid rgba(182,236,255,.48);box-shadow:0 0 27px rgba(86,222,243,.16);font-size:22px}
+.brand{min-width:0;flex:1}.brand strong{font-weight:800;letter-spacing:-.7px;font-size:19px}.brand strong span{color:#8ae9f9}.brand small{display:block;font-size:8px;letter-spacing:2.1px;font-weight:800;color:#8dabc1;margin-top:4px}
+.live{display:flex;gap:6px;align-items:center;padding:7px 9px;border:1px solid rgba(132,226,237,.18);border-radius:18px;font-size:9px;color:#a3c4d2;background:rgba(120,223,241,.05);white-space:nowrap}.dot{height:6px;width:6px;background:#93ebdd;border-radius:50%;box-shadow:0 0 10px rgba(147,235,221,.4)}
+main{flex:1;display:flex;flex-direction:column;overflow:hidden}.scroll{flex:1;overflow:auto;overscroll-behavior:contain;padding:20px 17px;scrollbar-width:thin}
+.welcome{display:flex;min-height:100%;padding:24px 10px 12px;align-items:center;justify-content:center;flex-direction:column;text-align:center}
+.symbolouter{height:114px;width:114px;border:1px solid rgba(189,235,255,.20);border-radius:37px;display:grid;place-items:center;box-shadow:0 0 0 15px rgba(101,205,235,.024),0 0 90px rgba(80,210,238,.11);transform:rotate(-5deg);background:rgba(183,232,252,.04)}
+.symbol{width:82px;height:82px;display:grid;place-items:center;border-radius:27px;border:1px solid rgba(164,238,255,.5);background:linear-gradient(136deg,rgba(181,241,254,.27),rgba(71,95,160,.09));font-size:38px;color:#bdffff;text-shadow:0 0 26px rgba(177,244,255,.7)}
+.eyebrow{display:flex;gap:9px;align-items:center;margin-top:41px;font-size:10px;letter-spacing:2px;font-weight:800;color:#97c8d5}.eyebrow:before,.eyebrow:after{content:"";width:22px;height:1px;background:#639eab}
+h1{font-size:clamp(37px,9vw,68px);letter-spacing:-2px;line-height:1.12;margin:18px 0 15px;font-weight:780}h1 em{font-style:normal;color:#b9f5ff;text-shadow:0 0 40px rgba(159,236,255,.26)}
+.subtitle{color:#a8bed0;line-height:1.85;font-size:12px;max-width:420px;margin:0}.subtitle b{color:#d9f3ff}
+.cards{display:flex;flex-direction:column;gap:9px;width:100%;max-width:510px;margin-top:37px}
+.card{width:100%;display:flex;gap:14px;align-items:center;padding:15px 16px;text-align:left;color:#e4f4ff;border:1px solid rgba(193,237,255,.16);border-radius:17px;background:linear-gradient(140deg,rgba(192,227,248,.10),rgba(95,126,175,.05));box-shadow:inset 0 1px rgba(255,255,255,.09);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px)}
+.card .glyph{display:grid;place-items:center;flex-shrink:0;width:34px;height:34px;color:#aaf3fc;font-size:20px}.card strong{display:block;font-size:12px}.card small{display:block;color:#8fa8be;font-size:10px;margin-top:5px}.arrow{margin-left:auto;color:#8db4c6}
+.messages{display:flex;flex-direction:column;gap:23px;padding:16px 0}.message{display:flex;gap:10px;align-items:flex-start}.avatar{display:grid;place-items:center;height:32px;width:32px;flex-shrink:0;border-radius:11px;border:1px solid rgba(176,238,247,.27);background:rgba(129,210,237,.12);color:#b4f8ff;font-weight:700;font-size:13px}.user .avatar{background:rgba(120,130,164,.15);color:#d0d9e9}
+.textbox{min-width:0;flex:1}.role{font-size:11px;font-weight:800;color:#bed6e6;margin:2px 0 8px}.content{color:#d8e9f6;font-size:13px;line-height:1.76;white-space:pre-wrap;overflow-wrap:anywhere;user-select:text}
+.loader{color:#9dc2d7;padding:16px 10px;font-size:12px;display:flex;align-items:center;gap:10px}.loader .dot{animation:pulse 1.2s infinite}.err{border:1px solid rgba(255,157,172,.4);background:rgba(121,33,53,.24);color:#ffd4db;border-radius:13px;padding:11px 13px;font-size:12px;margin-top:11px}
+.composerarea{padding:7px 14px 14px;flex-shrink:0;background:linear-gradient(transparent,rgba(4,10,23,.45))}
+.composer{border:1px solid rgba(177,235,255,.32);background:linear-gradient(140deg,rgba(181,226,245,.12),rgba(116,153,185,.06));border-radius:19px;padding:13px;box-shadow:inset 0 1px rgba(255,255,255,.12),0 12px 38px rgba(0,0,0,.15);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px)}
+textarea{background:none;border:0;outline:none;resize:none;width:100%;min-height:47px;max-height:130px;color:#eff9ff;font-size:13px;line-height:1.5;padding:5px 2px}
+textarea::placeholder{color:#91a8be}.actions{display:flex;align-items:center;justify-content:space-between}.modelchip{border-radius:20px;border:1px solid rgba(177,231,247,.13);background:rgba(157,230,248,.06);color:#a9cedd;font-size:11px;padding:8px 10px;max-width:60%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.send{width:39px;height:39px;border:0;border-radius:12px;background:linear-gradient(130deg,#c2f9ff,#6bdaf0);color:#092436;font-size:21px;box-shadow:0 0 25px rgba(93,211,237,.17);font-weight:700}.send:disabled{opacity:.39}
+.note{text-align:center;color:#809ab1;font-size:9px;margin:10px 0 0}
+.scrim{display:none;position:fixed;inset:0;background:rgba(2,7,17,.7);z-index:20}.scrim.show{display:block}
+.drawer{position:fixed;top:0;left:0;height:100%;width:min(315px,85vw);padding:20px 16px;z-index:21;transform:translateX(-105%);transition:transform .25s;background:linear-gradient(145deg,rgba(34,64,85,.96),rgba(9,17,35,.97));border-right:1px solid var(--line);backdrop-filter:blur(21px);display:flex;flex-direction:column}.drawer.show{transform:translateX(0)}
+.drawer h2{font-size:18px;margin:0 0 26px;padding:5px 8px;color:#bbf4fc}.new{padding:13px;border-radius:13px;background:rgba(122,221,246,.18);color:#e4f9ff;border:1px solid rgba(145,231,247,.28);text-align:left;font-size:13px;font-weight:700}.cap{font-size:10px;letter-spacing:1.8px;color:#89aabe;margin:26px 8px 13px}.history{flex:1;overflow:auto}.thread{display:flex;align-items:center;border-radius:11px;margin:4px 0;background:rgba(150,205,238,.04)}.thread.active{background:rgba(131,230,245,.15)}.thread>button:first-child{flex:1;min-width:0;padding:12px 8px;border:0;background:none;color:#d6eaf7;text-align:left;font-size:12px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.thread .del{border:0;background:none;color:#879caf;font-size:15px;padding:11px}.drawerfoot{display:flex;gap:10px}.drawerfoot button{flex:1;padding:13px 9px;color:#dff7ff;border:1px solid var(--line);background:rgba(220,245,255,.06);border-radius:12px;font-size:12px}
+.modal{position:fixed;inset:0;display:none;place-items:center;z-index:32;background:rgba(2,8,20,.77);padding:16px;backdrop-filter:blur(8px)}.modal.show{display:grid}.panel{background:linear-gradient(145deg,rgba(42,78,102,.97),rgba(12,23,43,.99));border-radius:26px;border:1px solid rgba(197,239,255,.3);box-shadow:0 25px 90px rgba(0,0,0,.6);max-width:500px;width:100%;padding:26px;max-height:90vh;overflow:auto}.panelhead{display:flex;align-items:flex-start;justify-content:space-between}.panel h2{margin:7px 0 4px;font-size:27px;letter-spacing:-1px}.kicker{font-size:9px;letter-spacing:2px;color:#9de4ef;font-weight:800}.field{margin-top:22px}.field label{display:block;color:#d7f1ff;font-size:12px;font-weight:700;margin-bottom:8px}.field input{width:100%;padding:13px;border-radius:11px;border:1px solid rgba(181,234,255,.22);background:rgba(4,13,29,.57);color:#fff;outline:none}.field p{color:#8fabbe;font-size:11px;line-height:1.6}.save{width:100%;padding:14px;border:0;border-radius:13px;background:#aaf4ff;color:#102336;font-weight:800;margin-top:17px}.secondarybtn{width:100%;padding:12px;margin-top:10px;border-radius:12px;border:1px solid rgba(228,247,255,.2);color:#d9f2ff;background:rgba(218,237,255,.06)}
+.presets{display:flex;gap:8px;flex-wrap:wrap;margin-top:13px}
+.preset{padding:10px 11px;border-radius:11px;border:1px solid rgba(156,223,246,.28);background:rgba(120,223,245,.10);color:#d2f4ff;font-size:11px}
+.preset:active{background:rgba(143,234,254,.25)}
+#modelstatus{color:#b2e8f4!important;min-height:17px}
+.modelSelectLabel{display:block;font-size:11px;font-weight:650;color:#c9edf5;margin:11px 0 7px}
+.modelSelect{display:block;width:100%;padding:12px 13px;border-radius:12px;border:1px solid rgba(158,235,246,.28);background:#17263b;color:#ecfaff;font-size:12px}
+.modelHelp{font-size:11px;color:#a6bdd1;line-height:1.65}
+.modelSelect option{background:#111b31;color:white}
+#toast{position:fixed;bottom:119px;left:50%;transform:translateX(-50%);width:max-content;max-width:90vw;padding:12px 18px;border:1px solid rgba(180,232,248,.3);border-radius:13px;background:#10243a;color:#e1f9ff;font-size:12px;display:none;z-index:33}
+@media(min-width:740px){.app{max-width:100%;}.welcome{padding:45px}.cards{flex-direction:row;max-width:800px}.card{flex:1;min-height:115px}.composerarea{max-width:850px;width:100%;margin:auto}.scroll{padding:28px 8vw}}
+@media(max-height:740px){.symbolouter{height:80px;width:80px;border-radius:25px}.symbol{width:61px;height:61px;border-radius:19px;font-size:30px}.eyebrow{margin-top:25px}.welcome{padding-top:10px}.cards{margin-top:20px}.card{padding:11px}}
+@media(prefers-reduced-motion:reduce){#space,.loader .dot{animation:none}.drawer{transition:none}}
+body.lowblur .app,body.lowblur .composer,body.lowblur .card{backdrop-filter:none;-webkit-backdrop-filter:none}
+@keyframes float{to{transform:translate(2%,3%)}}@keyframes pulse{50%{opacity:.2}}
+
+/* True WebGL companion inside polished optical glass. */
+.avatarDock{width:min(100%,570px);margin:18px auto 0;border:1px solid rgba(194,240,255,.22);
+ border-radius:27px;background:linear-gradient(145deg,rgba(116,201,229,.13),rgba(52,78,128,.035) 50%,rgba(10,29,53,.07));
+ box-shadow:inset 0 1px 0 rgba(240,252,255,.17),0 16px 50px rgba(0,0,0,.18);
+ display:flex;align-items:center;gap:7px;padding:11px 13px;backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);transition:padding .24s}
+.avatarStage{width:46%;height:202px;position:relative;touch-action:none;user-select:none;flex-shrink:0}
+.avatarStage canvas{display:block;width:100%;height:100%;background:transparent;filter:drop-shadow(0 10px 16px rgba(54,209,239,.12))}
+.avatarFallback{position:absolute;inset:5px;display:none;place-items:center;font-size:70px;color:#c4faff;
+ border-radius:25px;background:radial-gradient(circle at 50% 45%,rgba(139,231,251,.23),transparent 60%);text-shadow:0 0 36px rgba(140,229,249,.5)}
+.avatarDetails{flex:1;min-width:0;padding:7px 0}
+.avatarKicker{display:flex;gap:7px;align-items:center;font-size:9px;color:#88e4f2;letter-spacing:2px;font-weight:900}
+.avatarName{font-size:22px;font-weight:800;letter-spacing:-.8px;line-height:1.1;margin:10px 0 7px}
+.avatarName em{font-style:normal;color:#a8f3ff}
+.avatarStatus{display:block;font-size:11px;color:#a3bdcf;line-height:1.6;min-height:26px}
+.avatarHint{font-size:10px;color:#7897af;line-height:1.5;margin:7px 0}
+.avatarActions{display:flex;gap:7px;flex-wrap:wrap;margin-top:9px}
+.avatarAction{background:linear-gradient(140deg,rgba(147,230,253,.13),rgba(109,156,194,.09));color:#daf5ff;
+ border:1px solid rgba(173,233,246,.25);border-radius:11px;font-size:10px;font-weight:700;padding:9px 11px}
+.avatarAction:active{background:rgba(155,237,250,.30)}
+.avatarAction.on{background:rgba(134,233,227,.23);border-color:rgba(152,237,232,.46)}
+.has-chat .avatarDock{padding:4px 15px;margin-top:8px;max-width:530px}
+.has-chat .avatarStage{height:119px;width:40%}
+.has-chat .avatarName{margin:6px 0 3px;font-size:18px}
+.has-chat .avatarHint{display:none}
+.has-chat .avatarActions{margin-top:4px}
+.has-chat .avatarAction{padding:7px 9px}
+.has-chat .avatarStatus{min-height:18px}
+.has-chat .avatarKicker{font-size:8px}
+@media(max-width:560px){
+ .avatarDock{margin:11px auto 0;padding:7px 10px;gap:6px;border-radius:22px}
+ .avatarStage{height:174px;width:46%}
+ .avatarName{font-size:19px;margin:8px 0 5px}
+ .avatarKicker{font-size:8px;letter-spacing:1.2px}
+ .avatarStatus{font-size:10px}
+ .avatarHint{font-size:9px;margin:5px 0}
+ .avatarAction{padding:8px 9px}
+ .welcome{padding-top:10px}
+ .eyebrow{margin-top:19px}
+ h1{font-size:clamp(34px,8vw,50px);margin:13px 0}
+ .cards{margin-top:22px}
+ .has-chat .avatarStage{height:111px;width:39%}
+}
+/* Explicit permission controls. Always off until the owner taps Start. */
+.trackingPanel{max-width:570px;width:100%;margin:9px auto 0;padding:11px 13px;
+ border-radius:17px;border:1px solid rgba(173,232,246,.22);
+ background:linear-gradient(125deg,rgba(99,178,210,.13),rgba(37,55,99,.05));
+ backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px)}
+.trackingHeader{display:flex;justify-content:space-between;align-items:center;gap:6px;
+ font-size:10px;font-weight:800;color:#d7f6ff}
+.trackingHeader span:last-child{color:#92b7c6;font-size:9px}
+.trackingButtons{display:flex;gap:8px;margin-top:9px;flex-wrap:wrap}
+.trackingButtons button{flex:1;min-width:112px;min-height:35px;border-radius:10px;
+ border:1px solid rgba(144,229,246,.28);color:#e4f7ff;
+ background:rgba(124,203,234,.12);font-size:11px;font-weight:700}
+.trackingButtons button.on{background:rgba(67,180,167,.23);border-color:rgba(126,231,200,.62)}
+.trackingFeedback{display:flex;gap:6px;justify-content:space-between;flex-wrap:wrap;color:#94b0c0;
+ font-size:9px;margin:8px 0 0;line-height:1.6}
+.trackingNotice{font-size:9px;line-height:1.5;color:#859daf;margin:5px 0 0}
+.has-chat .trackingPanel{max-width:530px}
+@media(max-width:560px){.trackingPanel{padding:9px 10px}.trackingButtons button{font-size:10px;min-height:32px}}
+@media(max-height:740px){.avatarStage{height:145px}.has-chat .avatarStage{height:104px}}
+body.lowblur .avatarDock{backdrop-filter:none;-webkit-backdrop-filter:none}
+@media(prefers-reduced-motion:reduce){.avatarDock{transition:none}}
+</style>
+</head>
+<body>
+<div id="space"></div><div id="stars"></div>
+<div class="app">
+ <header class="top">
+   <button class="iconbtn" id="menu" aria-label="Menu">☰</button>
+   <div class="logo">✧</div><div class="brand"><strong>Astra <span>7.1</span></strong><small>PERSONAL INTELLIGENCE</small></div>
+   <div class="live"><span class="dot"></span><span id="state">PRIVATE</span></div>
+   <button class="iconbtn" id="gear" aria-label="Settings">⚙</button>
+ </header>
+ <main>
+   <div class="scroll" id="scroll">
+     <section class="avatarDock" id="avatarDock" aria-label="Astra's interactive 3D companion">
+       <div class="avatarStage" id="avatarStage">
+         <canvas id="astraAvatarCanvas" role="img" aria-label="3D synthetic humanoid avatar. Drag or tap to interact; tilt your phone to turn its head."></canvas>
+         <div id="avatarFallback" class="avatarFallback" aria-hidden="true">✧</div>
+       </div>
+       <div class="avatarDetails">
+         <div class="avatarKicker"><span class="dot"></span> LIVE 3D PRESENCE</div>
+         <div class="avatarName">ASTRA <em>7.1</em></div>
+         <span class="avatarStatus" id="avatarStatus" aria-live="polite">Move your phone • Touch to interact</span>
+         <p class="avatarHint">Tilt to look around. Tap to wave. Drag to turn.</p>
+         <div class="avatarActions">
+           <button class="avatarAction" id="avatarWave" aria-label="Make Astra wave">👋 Wave</button>
+           <button class="avatarAction" id="avatarVoice" aria-label="Toggle spoken answers">🔇 Voice off</button>
+         </div>
+       </div>
+     </section>
+     <section id="trackingPanel" class="trackingPanel" aria-label="Camera and microphone controls">
+        <div class="trackingHeader"><span>◉ LIVE BODY & VOICE TRACKING</span><span>OFF BY DEFAULT</span></div>
+        <div class="trackingButtons">
+          <button id="cameraToggle" type="button" aria-label="Start or stop face and body camera tracking">📷 Start camera</button>
+          <button id="micToggle" type="button" aria-label="Start or stop microphone reaction tracking">🎙 Start mic</button>
+        </div>
+        <div class="trackingFeedback">
+          <span id="cameraStatus" role="status">Camera off</span>
+          <span id="microphoneStatus" role="status">Mic off</span>
+        </div>
+        <div class="trackingNotice">Android asks permission once. Camera frames and mic sound stay on your phone. Stop or leave the app to turn them off.</div>
+     </section>
+     <section id="welcome" class="welcome">
+       <div class="eyebrow">YOUR WORLD, AMPLIFIED</div>
+       <h1>Think beyond<br/><em>the ordinary.</em></h1>
+       <p class="subtitle">Meet <b>Astra 7.1</b>, your private space for ambitious ideas, brilliant questions, and extraordinary creations.</p>
+       <div class="cards">
+         <button class="card" data-prompt="Help me design an amazing Android application."><span class="glyph">◇</span><span><strong>Build something</strong><small>Apps, ideas and automations</small></span><span class="arrow">↗</span></button>
+         <button class="card" data-prompt="Help me create an original cinematic story."><span class="glyph">✧</span><span><strong>Create freely</strong><small>Stories and new worlds</small></span><span class="arrow">↗</span></button>
+         <button class="card" data-prompt="Teach me something amazing and useful today."><span class="glyph">◎</span><span><strong>Explore the unknown</strong><small>Ask deeper questions</small></span><span class="arrow">↗</span></button>
+       </div>
+     </section>
+     <section id="messages" class="messages" style="display:none" aria-live="polite"></section>
+     <div class="err" id="error" role="alert" style="display:none"></div>
+   </div>
+   <div class="composerarea">
+     <div class="composer">
+       <textarea id="input" rows="2" placeholder="Ask anything. Create something extraordinary..." aria-label="Message Astra 7.1"></textarea>
+       <div class="actions"><button class="modelchip" id="modelchip">gpt-6-luna</button><button class="send" id="send" aria-label="Send message">↗</button></div>
+     </div>
+     <p class="note">✧ Chat history stays on this device. AI requests go to your chosen model provider.</p>
+   </div>
+ </main>
+</div>
+<div class="scrim" id="scrim"></div>
+<aside class="drawer" id="drawer">
+ <h2>✧ Astra 7.1</h2>
+ <button id="new" class="new">＋ New conversation</button>
+ <div class="cap">YOUR CONVERSATIONS</div>
+ <div id="history" class="history"></div>
+ <div class="drawerfoot"><button id="drawer-settings">⚙ Settings</button><button id="clear">Clear history</button></div>
+</aside>
+<div id="modal" class="modal">
+ <div class="panel" role="dialog" aria-label="Astra settings" aria-modal="true">
+  <div class="panelhead"><div><div class="kicker">PERSONAL CONFIGURATION</div><h2>Shape your Astra.</h2></div><button class="iconbtn" id="close" aria-label="Close settings">✕</button></div>
+  <div class="field"><label for="model">OpenAI model ID</label><input id="model" spellcheck="false" value="gpt-6-luna" maxlength="90"/>
+   <p>Choose a model your API account supports. Astra 7.1 is your app's name, not an OpenAI model ID.</p>
+   <div class="presets" aria-label="Suggested models">
+     <button type="button" class="preset" data-model="gpt-6-luna">Luna · economical</button>
+     <button type="button" class="preset" data-model="gpt-6.1-terra">Terra · balanced</button>
+     <button type="button" class="preset" data-model="gpt-6-astra">Astra · premium cost</button>
+   </div>
+   <button type="button" class="secondarybtn" id="loadmodels">🔎 Load models available to my API key</button>
+   <label for="modelchoices" class="modelSelectLabel">Available model IDs from your project</label>
+   <select id="modelchoices" class="modelSelect" aria-label="Choose an available OpenAI API model">
+      <option value="">Tap Load models first</option>
+   </select>
+   <button type="button" class="secondarybtn" id="testmodel">Check selected model access</button>
+   <p id="modelstatus" role="status" aria-live="polite"></p>
+   <p class="modelHelp">Seeing “Model not available”? Your key may belong to another project or lack permission. Loading models checks your own saved key, not a public catalog.</p>
+ </div>
+  <div class="field"><label for="key">OpenAI Platform API key</label><input id="key" type="password" placeholder="sk-..." autocomplete="off"/><p>Encrypted on your phone using Android Keystore. Not embedded in the APK, not stored in chat history. The API is billed separately from ChatGPT.</p></div>
+  <div class="field"><label><input id="lowblur" type="checkbox" style="width:auto;vertical-align:middle;margin-right:8px"/> Low blur mode (better battery life)</label></div>
+  <div class="field"><label><input id="motion" type="checkbox" checked style="width:auto;vertical-align:middle;margin-right:8px"/> React to phone tilt (accelerometer)</label>
+    <p>Phone tilt works without camera access. Face/body tracking and microphone reaction are separate opt-in controls. No sensor images/audio are included in AI chat requests.</p>
+  </div>
+  <button class="save" id="save">Save settings</button>
+  <button class="secondarybtn" id="removekey">Remove saved API key</button>
+ </div>
+</div>
+<div id="toast" role="status"></div>
+<script src="avatar.js"></script>
+<script>
+(function(){
+ "use strict";
+ const $=id=>document.getElementById(id);
+ const native=window.AstraNative;
+ const state={threads:[],id:null,model:"gpt-6-luna",busy:false,voice:false,motion:true};
+ try{const obj=JSON.parse(localStorage.getItem("astra71_threads")||"[]");if(Array.isArray(obj))state.threads=obj.slice(0,40);}catch(e){}
+ try{
+   const stored=localStorage.getItem("astra71_model");
+   state.model=!stored||stored==="gpt-6"?"gpt-6-luna":stored;
+   if(stored==="gpt-6")localStorage.setItem("astra71_model",state.model);
+ }catch(e){}
+ const low=localStorage.getItem("astra71_lowblur")==="yes";
+ document.body.classList.toggle("lowblur",low);$("lowblur").checked=low;
+ state.voice=localStorage.getItem("astra71_voice")==="yes";
+ state.motion=localStorage.getItem("astra71_motion")!=="no";
+ $("motion").checked=state.motion;
+ if(native && native.setMotionEnabled) native.setMotionEnabled(state.motion);
+ window.astraMotion=function(x,y,z){if(state.motion&&window.astraAvatar)window.astraAvatar.motion(x,y,z)};
+ if(!native&&window.addEventListener)window.addEventListener("deviceorientation",e=>{
+   if(state.motion&&window.astraAvatar)window.astraAvatar.motion((e.gamma||0)/7,(e.beta||0)/7,9.8);
+ },{passive:true});
+ function voiceLabel(){$("avatarVoice").textContent=state.voice?"🔊 Voice on":"🔇 Voice off";$("avatarVoice").classList.toggle("on",state.voice);}
+ voiceLabel();
+ $("avatarWave").onclick=()=>window.astraAvatar&&window.astraAvatar.wave();
+ $("avatarVoice").onclick=()=>{
+   state.voice=!state.voice;
+   localStorage.setItem("astra71_voice",state.voice?"yes":"no");
+   if(!state.voice&&native&&native.stopSpeaking)native.stopSpeaking();
+   voiceLabel();toast(state.voice?"Spoken answers enabled.":"Spoken answers muted.");
+ };
+ window.astraSpeaking=function(enabled){if(window.astraAvatar)window.astraAvatar.setSpeaking(enabled)};
+ const sensorState={camera:false,microphone:false};
+ const sensorLabels={camera:$("cameraStatus"),microphone:$("microphoneStatus")};
+ function updateSensorButtons(){
+   $("cameraToggle").textContent=sensorState.camera?"⏹ Stop camera":"📷 Start camera";
+   $("micToggle").textContent=sensorState.microphone?"⏹ Stop mic":"🎙 Start mic";
+   $("cameraToggle").classList.toggle("on",sensorState.camera);
+   $("micToggle").classList.toggle("on",sensorState.microphone);
+   $("cameraToggle").setAttribute("aria-pressed",String(sensorState.camera));
+   $("micToggle").setAttribute("aria-pressed",String(sensorState.microphone));
+ }
+ window.astraSensorStatus=function(type,message){
+   if(type!=="camera"&&type!=="microphone")return;
+   sensorLabels[type].textContent=message;
+   if(type==="camera"){
+     if(/camera.*active|tracking active/i.test(message))sensorState.camera=true;
+     if(/off|denied|disconnected|failed|error|unavailable|required/i.test(message))sensorState.camera=false;
+   }else{
+     if(/mic reactive/i.test(message))sensorState.microphone=true;
+     if(/off|denied|unavailable|failed|error|required/i.test(message))sensorState.microphone=false;
+   }
+   updateSensorButtons();
+ };
+ window.astraTracking=function(frame){
+   if(window.astraAvatar)window.astraAvatar.setTracking(frame);
+   if(sensorState.camera){
+     $("cameraStatus").textContent=(frame&&frame.face?"Face ✓":"Face searching")+
+       " • "+(frame&&frame.body?"Body ✓":"Body searching");
+   }
+ };
+ window.astraMicLevel=function(level){
+   if(window.astraAvatar)window.astraAvatar.setMicLevel(level);
+ };
+ $("cameraToggle").onclick=()=>{
+   if(!native||!native.startCameraTracking){toast("Camera tracking is available inside the Android APK.");return;}
+   if(sensorState.camera){native.stopCameraTracking();sensorState.camera=false;}
+   else{sensorLabels.camera.textContent="Opening Android camera permission...";native.startCameraTracking();}
+   updateSensorButtons();
+ };
+ $("micToggle").onclick=()=>{
+   if(!native||!native.startMicTracking){toast("Mic tracking is available inside the Android APK.");return;}
+   if(sensorState.microphone){native.stopMicTracking();sensorState.microphone=false;}
+   else{sensorLabels.microphone.textContent="Opening Android mic permission...";native.startMicTracking();}
+   updateSensorButtons();
+ };
+ updateSensorButtons();
+ function toast(msg){$("toast").textContent=msg;$("toast").style.display="block";setTimeout(()=>$("toast").style.display="none",3200);}
+ function persist(){try{localStorage.setItem("astra71_threads",JSON.stringify(state.threads.slice(0,40)))}catch(e){toast("Local storage is unavailable.");}}
+ function thread(){return state.threads.find(t=>t.id===state.id)}
+ function openDrawer(open){$("scrim").classList.toggle("show",open);$("drawer").classList.toggle("show",open)}
+ function openSettings(open){$("modal").classList.toggle("show",open);if(open){$("model").value=state.model;$("key").value="";}}
+ function newChat(){state.id=null;$("input").value="";$("error").style.display="none";openDrawer(false);render()}
+ function renderHistory(){
+   const host=$("history");host.replaceChildren();
+   if(!state.threads.length){const p=document.createElement("p");p.className="cap";p.textContent="Your ideas will appear here.";host.appendChild(p);return;}
+   for(const item of state.threads){const row=document.createElement("div");row.className="thread"+(state.id===item.id?" active":"");
+    const open=document.createElement("button");open.textContent="◌  "+item.title;open.onclick=()=>{state.id=item.id;openDrawer(false);render()};
+    const del=document.createElement("button");del.className="del";del.textContent="✕";del.setAttribute("aria-label","Delete conversation");del.onclick=()=>{state.threads=state.threads.filter(t=>t.id!==item.id);if(state.id===item.id)state.id=null;persist();render()};
+    row.append(open,del);host.append(row);
+   }
+ }
+ function render(){
+   const t=thread(), msgs=t?t.messages:[];
+   $("welcome").style.display=msgs.length?"none":"flex";
+   document.querySelector(".app").classList.toggle("has-chat",msgs.length>0);
+   $("messages").style.display=msgs.length?"flex":"none";
+   const host=$("messages");host.replaceChildren();
+   for(const msg of msgs){const row=document.createElement("div");row.className="message "+msg.role;
+    const avatar=document.createElement("span");avatar.className="avatar";avatar.textContent=msg.role==="user"?"Y":"✧";
+    const area=document.createElement("div");area.className="textbox";const r=document.createElement("div");r.className="role";r.textContent=msg.role==="user"?"You":"Astra 7.1";
+    const c=document.createElement("div");c.className="content";c.textContent=msg.content;
+    area.append(r,c);row.append(avatar,area);host.append(row);}
+   if(state.busy){const p=document.createElement("div");p.className="loader";p.textContent="✧  Astra is thinking";host.append(p)}
+   $("send").disabled=state.busy;
+   $("modelchip").textContent=state.model;
+   $("state").textContent=native&&native.hasKey()?"KEY SAVED":"SETUP";
+   renderHistory();
+   $("scroll").scrollTop=$("scroll").scrollHeight;
+ }
+ function send(){
+   const text=$("input").value.trim();if(!text||state.busy)return;
+   if(!native||!native.hasKey()){openSettings(true);toast("Add your API key to activate replies.");return;}
+   let t=thread();if(!t){t={id:Date.now().toString(36)+Math.random().toString(36).slice(2),title:text.slice(0,45),messages:[],updated:Date.now()};state.threads.unshift(t);state.id=t.id;}
+   t.messages.push({role:"user",content:text});t.updated=Date.now();
+   $("input").value="";$("error").style.display="none";state.busy=true;persist();if(window.astraAvatar)window.astraAvatar.setMode("thinking");render();
+   const request={id:t.id,model:state.model,messages:t.messages.slice(-35).map(m=>({role:m.role,content:m.content}))};
+   native.send(JSON.stringify(request));
+ }
+ window.astraReceive=function(id,reply,error){
+   state.busy=false;const t=state.threads.find(t=>t.id===id);
+   if(error){$("error").textContent=error;$("error").style.display="block";if(window.astraAvatar)window.astraAvatar.setMode("error");}
+   else if(t){
+     t.messages.push({role:"assistant",content:reply});t.updated=Date.now();persist();
+     if(window.astraAvatar){window.astraAvatar.setMode("idle");window.astraAvatar.wave();}
+     if(state.voice&&native&&native.speak)native.speak(reply);
+   }
+   render();
+ };
+ $("menu").onclick=()=>openDrawer(true);$("scrim").onclick=()=>openDrawer(false);
+ $("gear").onclick=()=>openSettings(true);$("drawer-settings").onclick=()=>{openDrawer(false);openSettings(true)};
+ $("new").onclick=newChat;$("clear").onclick=()=>{if(confirm("Delete all saved conversations on this device?")){state.threads=[];newChat();persist()}};
+ $("close").onclick=()=>openSettings(false);$("modal").onclick=e=>{if(e.target===$("modal"))openSettings(false)};
+ $("send").onclick=send;$("input").addEventListener("keydown",e=>{if(e.key==="Enter"&&!e.shiftKey){e.preventDefault();send()}});
+ $("modelchip").onclick=()=>openSettings(true);
+ document.querySelectorAll("[data-model]").forEach(b=>b.onclick=()=>{
+   $("model").value=b.dataset.model;
+   $("modelstatus").textContent="Save settings to use this model in chat.";
+ });
+ $("testmodel").onclick=()=>{
+   const chosen=$("model").value.trim();
+   if(!/^[A-Za-z0-9._:/-]{1,90}$/.test(chosen)){toast("Enter a valid model ID.");return;}
+   const key=$("key").value.trim();
+   if(key&&native&&native.saveKey){
+     if(!native.saveKey(key)){$("modelstatus").textContent="Could not save the API key.";return;}
+     $("key").value="";
+   }
+   if(!native||!native.hasKey()){$("modelstatus").textContent="Save your API key first.";return;}
+   $("modelstatus").textContent="Checking model availability for your API key...";
+   native.checkModel(chosen);
+ };
+ window.astraModelStatus=function(message){$("modelstatus").textContent=message;};
+ $("loadmodels").onclick=()=>{
+   if(!native||!native.listAvailableModels){
+     $("modelstatus").textContent="Update to the latest Astra 7.1 Android APK to load model IDs.";
+     return;
+   }
+   const key=$("key").value.trim();
+   if(key && native.saveKey){
+     if(!native.saveKey(key)){$("modelstatus").textContent="Could not save API key.";return;}
+     $("key").value="";
+   }
+   if(!native.hasKey()){$("modelstatus").textContent="Save your API key first.";return;}
+   $("modelstatus").textContent="Checking model IDs for your saved API key...";
+   native.listAvailableModels();
+ };
+ window.astraAvailableModels=function(models,status){
+   const select=$("modelchoices");select.replaceChildren();
+   const blank=document.createElement("option");
+   blank.value="";blank.textContent="Select a model ID";
+   select.append(blank);
+   if(Array.isArray(models)){
+     for(const id of models){
+       if(typeof id!=="string"||!/^[A-Za-z0-9._:/-]{1,90}$/.test(id))continue;
+       const opt=document.createElement("option");opt.value=id;opt.textContent=id;
+       select.append(opt);
+     }
+   }
+   const current=$("model").value.trim();
+   if(Array.from(select.options).some(x=>x.value===current))select.value=current;
+   $("modelstatus").textContent=String(status||"Model list unavailable.");
+ };
+ $("modelchoices").onchange=()=>{
+   if($("modelchoices").value){
+     $("model").value=$("modelchoices").value;
+     $("modelstatus").textContent="Selected. Tap Check selected model access, then Save settings.";
+   }
+ };
+ document.querySelectorAll("[data-prompt]").forEach(b=>b.onclick=()=>{$("input").value=b.dataset.prompt;$("input").focus()});
+ $("save").onclick=()=>{
+  const model=$("model").value.trim();
+  if(!/^[A-Za-z0-9._:/-]{1,90}$/.test(model)){toast("Enter a valid model ID.");return;}
+  const key=$("key").value.trim();
+  if(key){if(!native||!native.saveKey(key)){toast("Couldn't store API key securely.");return;}$("key").value="";}
+  state.model=model;try{localStorage.setItem("astra71_model",model)}catch(e){}
+  document.body.classList.toggle("lowblur",$("lowblur").checked);
+  localStorage.setItem("astra71_lowblur",$("lowblur").checked?"yes":"no");
+  if(window.astraAvatar)window.astraAvatar.setQuality($("lowblur").checked?"low":"auto");
+  state.motion=$("motion").checked;
+  localStorage.setItem("astra71_motion",state.motion?"yes":"no");
+  if(native&&native.setMotionEnabled)native.setMotionEnabled(state.motion);
+  openSettings(false);render();toast("Settings saved.");
+ };
+ $("removekey").onclick=()=>{if(native){native.clearKey();$("key").value="";render();toast("API key removed.")}};
+ render();
+})();
+</script>
+</body></html>
