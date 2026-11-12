@@ -41,6 +41,10 @@ textarea::placeholder{color:#91a8be}.actions{display:flex;align-items:center;jus
 .drawer{position:fixed;top:0;left:0;height:100%;width:min(315px,85vw);padding:20px 16px;z-index:21;transform:translateX(-105%);transition:transform .25s;background:linear-gradient(145deg,rgba(34,64,85,.96),rgba(9,17,35,.97));border-right:1px solid var(--line);backdrop-filter:blur(21px);display:flex;flex-direction:column}.drawer.show{transform:translateX(0)}
 .drawer h2{font-size:18px;margin:0 0 26px;padding:5px 8px;color:#bbf4fc}.new{padding:13px;border-radius:13px;background:rgba(122,221,246,.18);color:#e4f9ff;border:1px solid rgba(145,231,247,.28);text-align:left;font-size:13px;font-weight:700}.cap{font-size:10px;letter-spacing:1.8px;color:#89aabe;margin:26px 8px 13px}.history{flex:1;overflow:auto}.thread{display:flex;align-items:center;border-radius:11px;margin:4px 0;background:rgba(150,205,238,.04)}.thread.active{background:rgba(131,230,245,.15)}.thread>button:first-child{flex:1;min-width:0;padding:12px 8px;border:0;background:none;color:#d6eaf7;text-align:left;font-size:12px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.thread .del{border:0;background:none;color:#879caf;font-size:15px;padding:11px}.drawerfoot{display:flex;gap:10px}.drawerfoot button{flex:1;padding:13px 9px;color:#dff7ff;border:1px solid var(--line);background:rgba(220,245,255,.06);border-radius:12px;font-size:12px}
 .modal{position:fixed;inset:0;display:none;place-items:center;z-index:32;background:rgba(2,8,20,.77);padding:16px;backdrop-filter:blur(8px)}.modal.show{display:grid}.panel{background:linear-gradient(145deg,rgba(42,78,102,.97),rgba(12,23,43,.99));border-radius:26px;border:1px solid rgba(197,239,255,.3);box-shadow:0 25px 90px rgba(0,0,0,.6);max-width:500px;width:100%;padding:26px;max-height:90vh;overflow:auto}.panelhead{display:flex;align-items:flex-start;justify-content:space-between}.panel h2{margin:7px 0 4px;font-size:27px;letter-spacing:-1px}.kicker{font-size:9px;letter-spacing:2px;color:#9de4ef;font-weight:800}.field{margin-top:22px}.field label{display:block;color:#d7f1ff;font-size:12px;font-weight:700;margin-bottom:8px}.field input{width:100%;padding:13px;border-radius:11px;border:1px solid rgba(181,234,255,.22);background:rgba(4,13,29,.57);color:#fff;outline:none}.field p{color:#8fabbe;font-size:11px;line-height:1.6}.save{width:100%;padding:14px;border:0;border-radius:13px;background:#aaf4ff;color:#102336;font-weight:800;margin-top:17px}.secondarybtn{width:100%;padding:12px;margin-top:10px;border-radius:12px;border:1px solid rgba(228,247,255,.2);color:#d9f2ff;background:rgba(218,237,255,.06)}
+.presets{display:flex;gap:8px;flex-wrap:wrap;margin-top:13px}
+.preset{padding:10px 11px;border-radius:11px;border:1px solid rgba(156,223,246,.28);background:rgba(120,223,245,.10);color:#d2f4ff;font-size:11px}
+.preset:active{background:rgba(143,234,254,.25)}
+#modelstatus{color:#b2e8f4!important;min-height:17px}
 #toast{position:fixed;bottom:119px;left:50%;transform:translateX(-50%);width:max-content;max-width:90vw;padding:12px 18px;border:1px solid rgba(180,232,248,.3);border-radius:13px;background:#10243a;color:#e1f9ff;font-size:12px;display:none;z-index:33}
 @media(min-width:740px){.app{max-width:100%;}.welcome{padding:45px}.cards{flex-direction:row;max-width:800px}.card{flex:1;min-height:115px}.composerarea{max-width:850px;width:100%;margin:auto}.scroll{padding:28px 8vw}}
 @media(max-height:740px){.symbolouter{height:80px;width:80px;border-radius:25px}.symbol{width:61px;height:61px;border-radius:19px;font-size:30px}.eyebrow{margin-top:25px}.welcome{padding-top:10px}.cards{margin-top:20px}.card{padding:11px}}
@@ -77,7 +81,7 @@ body.lowblur .app,body.lowblur .composer,body.lowblur .card{backdrop-filter:none
    <div class="composerarea">
      <div class="composer">
        <textarea id="input" rows="2" placeholder="Ask anything. Create something extraordinary..." aria-label="Message Astra 7.1"></textarea>
-       <div class="actions"><button class="modelchip" id="modelchip">gpt-6</button><button class="send" id="send" aria-label="Send message">↗</button></div>
+       <div class="actions"><button class="modelchip" id="modelchip">gpt-6-luna</button><button class="send" id="send" aria-label="Send message">↗</button></div>
      </div>
      <p class="note">✧ Chat history stays on this device. AI requests go to your chosen model provider.</p>
    </div>
@@ -94,7 +98,16 @@ body.lowblur .app,body.lowblur .composer,body.lowblur .card{backdrop-filter:none
 <div id="modal" class="modal">
  <div class="panel" role="dialog" aria-label="Astra settings" aria-modal="true">
   <div class="panelhead"><div><div class="kicker">PERSONAL CONFIGURATION</div><h2>Shape your Astra.</h2></div><button class="iconbtn" id="close" aria-label="Close settings">✕</button></div>
-  <div class="field"><label for="model">OpenAI model ID</label><input id="model" spellcheck="false" value="gpt-6" maxlength="90"/><p>Use a model available in your OpenAI API account. “Astra 7.1” is this app's name, not a separate OpenAI model.</p></div>
+  <div class="field"><label for="model">OpenAI model ID</label><input id="model" spellcheck="false" value="gpt-6-luna" maxlength="90"/>
+   <p>Choose a model your API account supports. Astra 7.1 is your app's name, not an OpenAI model ID.</p>
+   <div class="presets" aria-label="Suggested models">
+     <button type="button" class="preset" data-model="gpt-6-luna">Luna · economical</button>
+     <button type="button" class="preset" data-model="gpt-6.1-terra">Terra · balanced</button>
+     <button type="button" class="preset" data-model="gpt-6-astra">Astra · premium cost</button>
+   </div>
+   <button type="button" class="secondarybtn" id="testmodel">Check model access</button>
+   <p id="modelstatus" role="status" aria-live="polite"></p>
+ </div>
   <div class="field"><label for="key">OpenAI Platform API key</label><input id="key" type="password" placeholder="sk-..." autocomplete="off"/><p>Encrypted on your phone using Android Keystore. Not embedded in the APK, not stored in chat history. The API is billed separately from ChatGPT.</p></div>
   <div class="field"><label><input id="lowblur" type="checkbox" style="width:auto;vertical-align:middle;margin-right:8px"/> Low blur mode (better battery life)</label></div>
   <button class="save" id="save">Save settings</button>
@@ -107,9 +120,13 @@ body.lowblur .app,body.lowblur .composer,body.lowblur .card{backdrop-filter:none
  "use strict";
  const $=id=>document.getElementById(id);
  const native=window.AstraNative;
- const state={threads:[],id:null,model:"gpt-6",busy:false};
+ const state={threads:[],id:null,model:"gpt-6-luna",busy:false};
  try{const obj=JSON.parse(localStorage.getItem("astra71_threads")||"[]");if(Array.isArray(obj))state.threads=obj.slice(0,40);}catch(e){}
- try{state.model=localStorage.getItem("astra71_model")||"gpt-6";}catch(e){}
+ try{
+   const stored=localStorage.getItem("astra71_model");
+   state.model=!stored||stored==="gpt-6"?"gpt-6-luna":stored;
+   if(stored==="gpt-6")localStorage.setItem("astra71_model",state.model);
+ }catch(e){}
  const low=localStorage.getItem("astra71_lowblur")==="yes";
  document.body.classList.toggle("lowblur",low);$("lowblur").checked=low;
  function toast(msg){$("toast").textContent=msg;$("toast").style.display="block";setTimeout(()=>$("toast").style.display="none",3200);}
@@ -140,7 +157,7 @@ body.lowblur .app,body.lowblur .composer,body.lowblur .card{backdrop-filter:none
    if(state.busy){const p=document.createElement("div");p.className="loader";p.textContent="✧  Astra is thinking";host.append(p)}
    $("send").disabled=state.busy;
    $("modelchip").textContent=state.model;
-   $("state").textContent=native&&native.hasKey()?"READY":"SETUP";
+   $("state").textContent=native&&native.hasKey()?"KEY SAVED":"SETUP";
    renderHistory();
    $("scroll").scrollTop=$("scroll").scrollHeight;
  }
@@ -165,6 +182,18 @@ body.lowblur .app,body.lowblur .composer,body.lowblur .card{backdrop-filter:none
  $("close").onclick=()=>openSettings(false);$("modal").onclick=e=>{if(e.target===$("modal"))openSettings(false)};
  $("send").onclick=send;$("input").addEventListener("keydown",e=>{if(e.key==="Enter"&&!e.shiftKey){e.preventDefault();send()}});
  $("modelchip").onclick=()=>openSettings(true);
+ document.querySelectorAll("[data-model]").forEach(b=>b.onclick=()=>{
+   $("model").value=b.dataset.model;
+   $("modelstatus").textContent="Save settings to use this model in chat.";
+ });
+ $("testmodel").onclick=()=>{
+   const chosen=$("model").value.trim();
+   if(!/^[A-Za-z0-9._:/-]{1,90}$/.test(chosen)){toast("Enter a valid model ID.");return;}
+   if(!native||!native.hasKey()){$("modelstatus").textContent="Save your API key first.";return;}
+   $("modelstatus").textContent="Checking model availability for your API key...";
+   native.checkModel(chosen);
+ };
+ window.astraModelStatus=function(message){$("modelstatus").textContent=message;};
  document.querySelectorAll("[data-prompt]").forEach(b=>b.onclick=()=>{$("input").value=b.dataset.prompt;$("input").focus()});
  $("save").onclick=()=>{
   const model=$("model").value.trim();
