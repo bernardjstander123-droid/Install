@@ -23,6 +23,8 @@ import android.os.SystemClock;
 import android.speech.tts.TextToSpeech;
 import android.speech.tts.UtteranceProgressListener;
 import java.util.Locale;
+import java.util.ArrayList;
+import java.util.Collections;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.security.keystore.KeyGenParameterSpec;
@@ -191,6 +193,9 @@ public class MainActivity extends Activity implements SensorEventListener {
         @JavascriptInterface public void checkModel(String model) {
             background.execute(() -> checkModelAccess(model));
         }
+        @JavascriptInterface public void listAvailableModels() {
+            background.execute(() -> loadAvailableModels());
+        }
         @JavascriptInterface public void setMotionEnabled(boolean enabled) {
             runOnUiThread(() -> {
                 motionEnabled = enabled;
@@ -353,6 +358,72 @@ public class MainActivity extends Activity implements SensorEventListener {
         });
     }
 
+    private void reportAvailableModels(JSONArray models, String status) {
+        onWebView("window.astraAvailableModels(" + models.toString() + "," +
+            JSONObject.quote(status) + ");");
+    }
+
+    /**
+     * Resolve candidate IDs with the *owner's* project API key instead of
+     * guessing which models are available. Listing is not a guarantee that a
+     * paid inference call will succeed.
+     */
+    private void loadAvailableModels() {
+        HttpsURLConnection connection = null;
+        try {
+            String key = readApiKey();
+            if (key.isEmpty()) {
+                reportAvailableModels(new JSONArray(), "Save your API key first.");
+                return;
+            }
+            connection = (HttpsURLConnection) new URL("https://api.openai.com/v1/models").openConnection();
+            connection.setRequestMethod("GET");
+            connection.setConnectTimeout(12000);
+            connection.setReadTimeout(18000);
+            connection.setRequestProperty("Authorization", "Bearer " + key);
+            int status = connection.getResponseCode();
+            if (status != 200) {
+                String result = status == 401 ? "The saved key was rejected by OpenAI." :
+                    status == 403 ? "This project key cannot list models. Check its permissions." :
+                    status == 429 ? "Model list request rate-limited. Check API usage and billing." :
+                    "Unable to retrieve models (HTTP " + status + ").";
+                reportAvailableModels(new JSONArray(), result);
+                return;
+            }
+            StringBuilder response = new StringBuilder();
+            try (InputStream data = connection.getInputStream();
+                 BufferedReader reader = new BufferedReader(new InputStreamReader(data, StandardCharsets.UTF_8))) {
+                String line;
+                while ((line = reader.readLine()) != null) {
+                    if (response.length() > 600000) throw new Exception("Model list exceeds size limit");
+                    response.append(line);
+                }
+            }
+            JSONArray models = new JSONObject(response.toString()).optJSONArray("data");
+            ArrayList<String> names = new ArrayList<>();
+            if (models != null) {
+                for (int i=0; i<models.length() && i<350; i++) {
+                    String id = models.optJSONObject(i) == null ? "" : models.optJSONObject(i).optString("id", "");
+                    String lower = id.toLowerCase(Locale.US);
+                    if (!id.matches("[A-Za-z0-9._:/-]{1,90}")) continue;
+                    if (!(lower.startsWith("gpt-") || lower.matches("o[1-9].*"))) continue;
+                    if (lower.contains("audio") || lower.contains("transcri") ||
+                        lower.contains("realtime") || lower.contains("image") ||
+                        lower.contains("search") || lower.contains("tts")) continue;
+                    names.add(id);
+                }
+            }
+            Collections.sort(names);
+            JSONArray result = new JSONArray();
+            for (int i=0; i<Math.min(100,names.size()); i++) result.put(names.get(i));
+            reportAvailableModels(result, result.length() + " model IDs listed for this key. Select one and tap Check model access. Listing doesn't guarantee chat access.");
+        } catch (Exception ignored) {
+            reportAvailableModels(new JSONArray(), "Could not load models. Check your connection and API key.");
+        } finally {
+            if (connection != null) connection.disconnect();
+        }
+    }
+
     private void checkModelAccess(String model) {
         if (model == null || !model.matches("[A-Za-z0-9._:/-]{1,90}")) {
             reportModelStatus("Enter a valid model ID.");
@@ -442,13 +513,14 @@ public class MainActivity extends Activity implements SensorEventListener {
                     JSONObject providerError = new JSONObject(sb.toString()).optJSONObject("error");
                     if (providerError != null) providerCode = providerError.optString("code", "");
                 } catch (Exception ignored) { }
-                String msg = status == 401 ? "API key rejected. Check your OpenAI Platform key." :
-                    status == 429 ? "API rate or billing limit reached. Check Platform billing." :
+                String cleanCode = providerCode.matches("[A-Za-z0-9_:-]{1,60}") ? providerCode : "unknown";
+                String msg = status == 401 ? "API key rejected by OpenAI. Verify the project key in Settings." :
+                    status == 429 ? "API billing, quota or rate limit reached. Check Platform billing and limits." :
                     (status == 404 || "model_not_found".equals(providerCode)) ?
-                        "Model " + model + " is not available for this API key. Try gpt-6-luna in Settings." :
-                    status == 400 ? "The API rejected this request (400). Check model access and parameters." :
-                    status == 403 ? "Your project does not have permission to use this model." :
-                    "AI provider error (" + status + ").";
+                        "Model " + model + " is not available for this project. Use Load models in Settings." :
+                    status == 400 ? "OpenAI rejected the request (400, code: " + cleanCode + "). Load models and check access; verify request compatibility." :
+                    status == 403 ? "This project lacks permission for " + model + ". Check project Model usage and key permissions." :
+                    "OpenAI API error (" + status + ", code: " + cleanCode + ").";
                 throw new Exception(msg);
             }
             JSONObject data = new JSONObject(sb.toString());
