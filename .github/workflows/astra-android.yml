@@ -38,7 +38,7 @@ jobs:
       - name: Validate embedded 3D avatar and chat UI
         run: |
           node --check app/src/main/assets/avatar.js
-          node --test tests/avatar.test.cjs
+          node --test tests/*.test.cjs
       - name: Compile debug APK
         run: gradle --no-daemon :app:assembleDebug
       - name: Verify APK signature and SHA-256
