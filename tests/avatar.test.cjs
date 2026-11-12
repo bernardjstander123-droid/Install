@@ -63,6 +63,10 @@ function mount({webgl=true,reducedMotion=false}={}){
 test("HTML embeds the local 3D canvas, gestures and voice controls",()=>{
   assert.match(html,/id="astraAvatarCanvas"/);
   assert.match(html,/src="avatar.js"/);
+  assert.match(html,/id="loadmodels"/);
+  assert.match(html,/id="modelchoices"/);
+  assert.match(html,/window\.astraAvailableModels/);
+  assert.match(html,/native\.listAvailableModels\(\)/);
   for (const id of ["avatarStage","avatarStatus","avatarVoice","avatarWave","motion"]) {
     assert.ok(html.includes('id="'+id+'"'),id);
   }
