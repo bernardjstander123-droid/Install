@@ -35,6 +35,10 @@ jobs:
           curl -fsSL --retry 3 https://services.gradle.org/distributions/gradle-8.10.2-bin.zip -o /tmp/gradle.zip
           unzip -q /tmp/gradle.zip -d "$RUNNER_TEMP"
           echo "$RUNNER_TEMP/gradle-8.10.2/bin" >> "$GITHUB_PATH"
+      - name: Validate embedded 3D avatar and chat UI
+        run: |
+          node --check app/src/main/assets/avatar.js
+          node --test tests/avatar.test.cjs
       - name: Compile debug APK
         run: gradle --no-daemon :app:assembleDebug
       - name: Verify APK signature and SHA-256
