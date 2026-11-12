@@ -13,6 +13,14 @@ import android.webkit.WebSettings;
 import android.webkit.WebResourceRequest;
 import android.widget.FrameLayout;
 import android.net.Uri;
+import android.hardware.Sensor;
+import android.hardware.SensorEvent;
+import android.hardware.SensorEventListener;
+import android.hardware.SensorManager;
+import android.os.SystemClock;
+import android.speech.tts.TextToSpeech;
+import android.speech.tts.UtteranceProgressListener;
+import java.util.Locale;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.security.keystore.KeyGenParameterSpec;
@@ -38,12 +46,19 @@ import javax.crypto.KeyGenerator;
 import javax.crypto.SecretKey;
 import javax.crypto.spec.GCMParameterSpec;
 
-public class MainActivity extends Activity {
+public class MainActivity extends Activity implements SensorEventListener {
     private static final String KEY_ALIAS = "astra71_openai_key_v1";
     private static final String PREFS = "astra71_secrets";
     private static final String API_URL = "https://api.openai.com/v1/responses";
     private WebView web;
     private final ExecutorService background = Executors.newSingleThreadExecutor();
+    private SensorManager sensors;
+    private Sensor accelerometer;
+    private boolean motionEnabled = true;
+    private long lastSensorMs = 0L;
+    private float filteredX = 0f, filteredY = 0f, filteredZ = 9.8f;
+    private TextToSpeech speaker;
+    private volatile boolean speakerReady = false;
 
     @Override public void onCreate(Bundle state) {
         super.onCreate(state);
@@ -83,6 +98,11 @@ public class MainActivity extends Activity {
         web.addJavascriptInterface(new NativeBridge(), "AstraNative");
         setContentView(root);
         if (Build.VERSION.SDK_INT >= 30) root.requestApplyInsets();
+        // No camera or microphone permission: reacts only to built-in acceleration.
+        sensors = (SensorManager) getSystemService(Context.SENSOR_SERVICE);
+        if (sensors != null) accelerometer = sensors.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
+        motionEnabled = getSharedPreferences("astra71_motion", MODE_PRIVATE).getBoolean("enabled", true);
+        setUpSpeech();
         web.loadUrl("file:///android_asset/index.html");
     }
 
@@ -151,6 +171,88 @@ public class MainActivity extends Activity {
         @JavascriptInterface public void checkModel(String model) {
             background.execute(() -> checkModelAccess(model));
         }
+        @JavascriptInterface public void setMotionEnabled(boolean enabled) {
+            runOnUiThread(() -> {
+                motionEnabled = enabled;
+                getSharedPreferences("astra71_motion", MODE_PRIVATE).edit().putBoolean("enabled", enabled).apply();
+                updateMotionRegistration();
+            });
+        }
+        @JavascriptInterface public void speak(String text) {
+            if (text == null || text.isEmpty()) return;
+            final String safeText = text.length() > 3000 ? text.substring(0,3000) : text;
+            runOnUiThread(() -> {
+                if (speakerReady && speaker != null) {
+                    speaker.speak(safeText, TextToSpeech.QUEUE_FLUSH, null,
+                        "astra71_" + SystemClock.uptimeMillis());
+                }
+            });
+        }
+        @JavascriptInterface public void stopSpeaking() {
+            runOnUiThread(() -> {
+                if (speaker != null) speaker.stop();
+                reportSpeaking(false);
+            });
+        }
+    }
+
+    private void reportSpeaking(boolean on) {
+        runOnUiThread(() -> {
+            if (web != null) web.evaluateJavascript(
+                "window.astraSpeaking(" + (on ? "true" : "false") + ");", null);
+        });
+    }
+
+    private void setUpSpeech() {
+        speaker = new TextToSpeech(getApplicationContext(), status -> {
+            if (status == TextToSpeech.SUCCESS) {
+                if (speaker != null) {
+                    int language = speaker.setLanguage(Locale.ENGLISH);
+                    speakerReady = language != TextToSpeech.LANG_MISSING_DATA
+                        && language != TextToSpeech.LANG_NOT_SUPPORTED;
+                }
+            }
+        });
+        speaker.setOnUtteranceProgressListener(new UtteranceProgressListener() {
+            @Override public void onStart(String utteranceId) { reportSpeaking(true); }
+            @Override public void onDone(String utteranceId) { reportSpeaking(false); }
+            @Override public void onError(String utteranceId) { reportSpeaking(false); }
+        });
+    }
+
+    private void updateMotionRegistration() {
+        if (sensors == null || accelerometer == null) return;
+        sensors.unregisterListener(this);
+        if (motionEnabled) sensors.registerListener(this, accelerometer, SensorManager.SENSOR_DELAY_UI);
+    }
+
+    @Override protected void onResume() {
+        super.onResume();
+        updateMotionRegistration();
+        if (web != null) web.onResume();
+    }
+
+    @Override protected void onPause() {
+        if (sensors != null) sensors.unregisterListener(this);
+        if (web != null) web.onPause();
+        if (speaker != null) speaker.stop();
+        super.onPause();
+    }
+
+    @Override public void onAccuracyChanged(Sensor sensor, int accuracy) { }
+
+    @Override public void onSensorChanged(SensorEvent event) {
+        if (event.sensor.getType() != Sensor.TYPE_ACCELEROMETER || !motionEnabled || web == null)
+            return;
+        filteredX = .75f*filteredX + .25f*event.values[0];
+        filteredY = .75f*filteredY + .25f*event.values[1];
+        filteredZ = .75f*filteredZ + .25f*event.values[2];
+        long now = SystemClock.elapsedRealtime();
+        if (now - lastSensorMs < 100) return;
+        lastSensorMs = now;
+        String js = String.format(Locale.US, "window.astraMotion(%.3f,%.3f,%.3f);",
+            filteredX, filteredY, filteredZ);
+        web.evaluateJavascript(js, null);
     }
 
     private void reportModelStatus(String message) {
@@ -288,6 +390,8 @@ public class MainActivity extends Activity {
     }
 
     @Override protected void onDestroy() {
+        if (sensors != null) sensors.unregisterListener(this);
+        if (speaker != null) { speaker.stop(); speaker.shutdown(); speaker = null; }
         background.shutdownNow();
         if (web != null) {
             web.removeJavascriptInterface("AstraNative");
