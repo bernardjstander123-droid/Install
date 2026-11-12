@@ -8,7 +8,7 @@ const reduceMotion = root.matchMedia && root.matchMedia("(prefers-reduced-motion
 const state = {
   mode: "idle", speaking: false, tiltX: 0, tiltY: 0, tiltZ: 0,
   pointerX: 0, pointerY: 0, dragX: 0, dragY: 0, waveUntil: 0,
-  lastTouch: 0, interactionUntil: 0, quality: "auto"
+  lastTouch: 0, interactionUntil: 0, quality: "auto", tracking: null, micLevel: 0
 };
 let gl;
 try {
@@ -51,8 +51,20 @@ function setMode(mode) {
   else setStatus("Move your phone • Touch to interact");
 }
 function setSpeaking(v) { state.speaking = Boolean(v); setMode(v ? "speaking" : "idle"); }
+function setTracking(frame) {
+  if(!frame || typeof frame!=="object")return;
+  const data={face:frame.face===true,body:frame.body===true,timestamp:timeNow()};
+  for (const key of ["yaw","pitch","roll","faceX","faceY","lean","sway","leftArm","rightArm"]) {
+    if (typeof frame[key]==="number" && Number.isFinite(frame[key])) data[key]=clamp(frame[key],-1,1);
+  }
+  state.tracking=data;
+}
+function setMicLevel(level) {
+  if(typeof level==="number"&&Number.isFinite(level))
+    state.micLevel=clamp(level,0,1);
+}
 function setQuality(v) { state.quality = v === "low" ? "low" : "auto"; if (gl) resize(); }
-const api = {motion, wave, setMode, setSpeaking, setQuality};
+const api = {motion, wave, setMode, setSpeaking, setQuality, setTracking, setMicLevel};
 root.astraAvatar = api;
 const stage = root.document.getElementById("avatarStage") || canvas;
 let drag = null;
@@ -202,15 +214,20 @@ let smoothX=0,smoothY=0,smoothZ=0,pX=0,pY=0,last=0,frame=0;
 function draw(t) {
  const secs=t*.001;
  const active=t<state.interactionUntil;
- const desiredY=clamp(state.tiltX*.28+state.dragX*.48,-.7,.7);
+ const tracking=state.tracking && t-state.tracking.timestamp<2500?state.tracking:null;
+ const body=tracking&&tracking.body?tracking:null;
+ const face=tracking&&tracking.face?tracking:null;
+ const desiredY=clamp(state.tiltX*.28+state.dragX*.48+(body?(body.sway||0)*.16:0),-.7,.7);
  const desiredX=clamp(-state.tiltY*.15+state.dragY*.30,-.44,.44);
- const desiredZ=clamp(state.tiltX*.10,-.13,.13);
+ const desiredZ=clamp(state.tiltX*.10+(body?(body.lean||0)*.30:0),-.24,.24);
  smoothY=lerp(smoothY,desiredY,.075);smoothX=lerp(smoothX,desiredX,.075);smoothZ=lerp(smoothZ,desiredZ,.075);
  pX=lerp(pX,active?state.pointerX:0,.09);pY=lerp(pY,active?state.pointerY:0,.09);
  const busy=state.mode==="thinking",speaking=state.speaking||state.mode==="speaking";
  const bob=reduceMotion?0:Math.sin(secs*1.7)*.038;
  const pulse=busy?0.5+0.5*Math.sin(secs*8):0.5+0.5*Math.sin(secs*2.3);
  const waveActive=t<state.waveUntil;
+ const leftLift=body&&typeof body.leftArm==="number"?Math.max(0,body.leftArm):0;
+ const rightLift=body&&typeof body.rightArm==="number"?Math.max(0,body.rightArm):0;
  const wavePhase=waveActive?Math.sin((state.waveUntil-t)*.014)*.30:0;
  gl.clearColor(0,0,0,0);gl.clear(gl.COLOR_BUFFER_BIT|gl.DEPTH_BUFFER_BIT);
  const rootM=combine(I(),T(0,bob,0),RY(smoothY),RX(smoothX*.35),RZ(smoothZ));
@@ -228,7 +245,9 @@ function draw(t) {
  // Arms: individually pivot at shoulders; wave animates the left hand.
  for(const sign of [-1,1]){
    const waving=sign===1&&waveActive;
-   const arm=combine(rootM,T(sign*.78,-.37,.01),RZ(sign*(waving?-.85+wavePhase:.13+Math.sin(secs*.8)*.025)));
+   const lift=sign<0?leftLift:rightLift;
+   const arm=combine(rootM,T(sign*.78,-.37,.01),
+      RZ(sign*(waving?-.85+wavePhase:.13+lift*1.55+Math.sin(secs*.8)*.025)));
    orb(arm,0,-.19,0,.25,.43,.27,metal);
    orb(arm,0,-.57,.055,.22,.27,.24,dark);
    ring(arm,0,-.59,.12,.21,.16,.19,ice,.24,.88);
@@ -239,7 +258,10 @@ function draw(t) {
  orb(rootM,0,.17,0,.22,.33,.22,ink);
  ring(rootM,0,.12,.02,.33,.16,.32,ice,.38,.83);
  // Head follows hand motion and the phone's acceleration.
- const head=combine(rootM,T(0,.91,.09),RY(pX*.26+Math.sin(secs*.5)*.026),RX(-pY*.20));
+ const head=combine(rootM,T(0,.91,.09),
+    RY(pX*.26+(face?(face.yaw||0)*.48:0)+Math.sin(secs*.5)*.026),
+    RX(-pY*.20+(face?(face.pitch||0)*.22:0)),
+    RZ(face?(face.roll||0)*.25:0));
  orb(head,0,0,0,.51,.60,.44,dark,.02);
  orb(head,0,.02,.13,.47,.53,.40,skin,.015);
  orb(head,0,.01,.39,.40,.43,.18,ink);
@@ -256,7 +278,9 @@ function draw(t) {
    orb(head,sign*.19,.24,.51,.17,.023,.025,metal);
  }
  // Voice-reactive mouth and cheek light bars.
- orb(head,0,-.19,.554,.14,speaking?.042+Math.abs(Math.sin(secs*17))*.055:.025,.025,white,.28);
+ const micMouth=Math.max(0, state.micLevel);
+ orb(head,0,-.19,.554,.14,speaking?.042+Math.abs(Math.sin(secs*17))*.055:
+     .025+Math.min(.095,micMouth*.18),.025,white,.28);
  orb(head,-.31,-.16,.48,.062,.018,.03,ice,.45);
  orb(head,.31,-.16,.48,.062,.018,.03,ice,.45);
  orb(head,0,-.45,.18,.22,.11,.16,dark);
