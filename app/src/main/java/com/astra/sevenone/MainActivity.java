@@ -1,6 +1,8 @@
 package com.astra.sevenone;
 
 import android.app.Activity;
+import android.Manifest;
+import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.os.Build;
 import android.graphics.Color;
@@ -50,6 +52,8 @@ public class MainActivity extends Activity implements SensorEventListener {
     private static final String KEY_ALIAS = "astra71_openai_key_v1";
     private static final String PREFS = "astra71_secrets";
     private static final String API_URL = "https://api.openai.com/v1/responses";
+    private static final int CAMERA_PERMISSION_REQUEST = 721;
+    private static final int MICROPHONE_PERMISSION_REQUEST = 722;
     private WebView web;
     private final ExecutorService background = Executors.newSingleThreadExecutor();
     private SensorManager sensors;
@@ -59,6 +63,8 @@ public class MainActivity extends Activity implements SensorEventListener {
     private float filteredX = 0f, filteredY = 0f, filteredZ = 9.8f;
     private TextToSpeech speaker;
     private volatile boolean speakerReady = false;
+    private AvatarCameraTracker avatarCamera;
+    private AvatarMicrophoneTracker avatarMicrophone;
 
     @Override public void onCreate(Bundle state) {
         super.onCreate(state);
@@ -98,7 +104,21 @@ public class MainActivity extends Activity implements SensorEventListener {
         web.addJavascriptInterface(new NativeBridge(), "AstraNative");
         setContentView(root);
         if (Build.VERSION.SDK_INT >= 30) root.requestApplyInsets();
-        // No camera or microphone permission: reacts only to built-in acceleration.
+        // Camera and microphone remain OFF until the owner taps Start and
+        // approves Android's runtime permission prompt. No background capture.
+        avatarCamera = new AvatarCameraTracker(this, new AvatarCameraTracker.Listener() {
+            @Override public void onStatus(String message) { reportSensorStatus("camera", message); }
+            @Override public void onTracking(JSONObject frame) {
+                onWebView("window.astraTracking(" + frame.toString() + ");");
+            }
+        });
+        avatarMicrophone = new AvatarMicrophoneTracker(this, new AvatarMicrophoneTracker.Listener() {
+            @Override public void onStatus(String message) { reportSensorStatus("microphone", message); }
+            @Override public void onLevel(double level) {
+                onWebView(String.format(Locale.US, "window.astraMicLevel(%.3f);", level));
+            }
+        });
+        // Body motion is separate from phone tilt.
         sensors = (SensorManager) getSystemService(Context.SENSOR_SERVICE);
         if (sensors != null) accelerometer = sensors.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
         motionEnabled = getSharedPreferences("astra71_motion", MODE_PRIVATE).getBoolean("enabled", true);
@@ -194,6 +214,69 @@ public class MainActivity extends Activity implements SensorEventListener {
                 reportSpeaking(false);
             });
         }
+        @JavascriptInterface public void startCameraTracking() {
+            runOnUiThread(() -> {
+                if (checkSelfPermission(Manifest.permission.CAMERA)
+                    == PackageManager.PERMISSION_GRANTED) {
+                    if(avatarCamera!=null) avatarCamera.start();
+                } else {
+                    reportSensorStatus("camera", "Waiting for Android camera permission...");
+                    requestPermissions(new String[]{Manifest.permission.CAMERA}, CAMERA_PERMISSION_REQUEST);
+                }
+            });
+        }
+        @JavascriptInterface public void stopCameraTracking() {
+            runOnUiThread(() -> {
+                if(avatarCamera!=null) avatarCamera.stop();
+                reportSensorStatus("camera", "Camera off");
+                onWebView("window.astraTracking({face:false,body:false});");
+            });
+        }
+        @JavascriptInterface public void startMicTracking() {
+            runOnUiThread(() -> {
+                if (checkSelfPermission(Manifest.permission.RECORD_AUDIO)
+                    == PackageManager.PERMISSION_GRANTED) {
+                    if(avatarMicrophone!=null) avatarMicrophone.start();
+                } else {
+                    reportSensorStatus("microphone", "Waiting for Android mic permission...");
+                    requestPermissions(new String[]{Manifest.permission.RECORD_AUDIO}, MICROPHONE_PERMISSION_REQUEST);
+                }
+            });
+        }
+        @JavascriptInterface public void stopMicTracking() {
+            runOnUiThread(() -> {
+                if(avatarMicrophone!=null) avatarMicrophone.stop();
+                reportSensorStatus("microphone", "Microphone off");
+                onWebView("window.astraMicLevel(0);");
+            });
+        }
+    }
+
+    private void onWebView(String javascript) {
+        runOnUiThread(() -> {
+            if (web != null) web.evaluateJavascript(javascript, null);
+        });
+    }
+
+    private void reportSensorStatus(String sensor, String status) {
+        onWebView("window.astraSensorStatus(" +
+            JSONObject.quote(sensor) + "," + JSONObject.quote(status) + ");");
+    }
+
+    @Override public void onRequestPermissionsResult(int requestCode,
+            String[] permissions, int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        boolean granted = grantResults.length > 0 &&
+            grantResults[0] == PackageManager.PERMISSION_GRANTED;
+        if (requestCode == CAMERA_PERMISSION_REQUEST) {
+            if (granted) {
+                if(avatarCamera!=null) avatarCamera.start();
+            } else reportSensorStatus("camera", "Camera permission denied. Tracking off.");
+        } else if (requestCode == MICROPHONE_PERMISSION_REQUEST) {
+            if (granted) {
+                if(avatarMicrophone!=null) avatarMicrophone.start();
+            } else reportSensorStatus("microphone", "Microphone permission denied. Mic off.");
+        }
     }
 
     private void reportSpeaking(boolean on) {
@@ -236,6 +319,12 @@ public class MainActivity extends Activity implements SensorEventListener {
         if (sensors != null) sensors.unregisterListener(this);
         if (web != null) web.onPause();
         if (speaker != null) speaker.stop();
+        if(avatarCamera!=null&&avatarCamera.isActive()) {
+            avatarCamera.stop(); reportSensorStatus("camera", "Camera off • App paused");
+        }
+        if(avatarMicrophone!=null&&avatarMicrophone.isActive()) {
+            avatarMicrophone.stop(); reportSensorStatus("microphone", "Mic off • App paused");
+        }
         super.onPause();
     }
 
@@ -391,6 +480,8 @@ public class MainActivity extends Activity implements SensorEventListener {
 
     @Override protected void onDestroy() {
         if (sensors != null) sensors.unregisterListener(this);
+        if(avatarCamera!=null) {avatarCamera.stop();avatarCamera=null;}
+        if(avatarMicrophone!=null) {avatarMicrophone.stop();avatarMicrophone=null;}
         if (speaker != null) { speaker.stop(); speaker.shutdown(); speaker = null; }
         background.shutdownNow();
         if (web != null) {
