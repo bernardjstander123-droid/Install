@@ -88,6 +88,12 @@ test("Touch and motion update avatar without requiring a camera",()=>{
   assert.equal(obj.avatarStatus.textContent,"Thinking with you");
   obj.win.astraAvatar.setSpeaking(true);
   assert.equal(obj.avatarStatus.textContent,"Speaking");
+  assert.equal(typeof obj.win.astraAvatar.setTracking,"function");
+  assert.equal(typeof obj.win.astraAvatar.setMicLevel,"function");
+  obj.win.astraAvatar.setTracking({
+    face:true,body:true,yaw:.25,pitch:.18,roll:-.2,lean:.35,leftArm:.7,rightArm:.2
+  });
+  obj.win.astraAvatar.setMicLevel(.4);
   obj.win.astraAvatar.wave();
   assert.match(obj.avatarStatus.textContent,/Hello/);
   obj.advance(100);
