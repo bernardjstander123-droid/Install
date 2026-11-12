@@ -51,18 +51,19 @@ function setMode(mode) {
   else setStatus("Move your phone • Touch to interact");
 }
 function setSpeaking(v) { state.speaking = Boolean(v); setMode(v ? "speaking" : "idle"); }
-function setQuality(v) { state.quality = v === "low" ? "low" : "auto"; resize(); }
+function setQuality(v) { state.quality = v === "low" ? "low" : "auto"; if (gl) resize(); }
 const api = {motion, wave, setMode, setSpeaking, setQuality};
 root.astraAvatar = api;
 const stage = root.document.getElementById("avatarStage") || canvas;
 let drag = null;
 stage.addEventListener("pointerdown", function(e) {
-  drag = {x:e.clientX,y:e.clientY,start:timeNow()};
+  drag = {x:e.clientX,y:e.clientY,start:timeNow(),distance:0};
   if(stage.setPointerCapture) try{stage.setPointerCapture(e.pointerId)}catch(ignored){}
 });
 stage.addEventListener("pointermove", function(e) {
   if (!drag) return;
   const dx=e.clientX-drag.x, dy=e.clientY-drag.y;
+  drag.distance += Math.abs(dx)+Math.abs(dy);
   state.dragX=clamp(state.dragX+dx/180,-1.2,1.2);
   state.dragY=clamp(state.dragY+dy/220,-.8,.8);
   state.pointerX=clamp((e.clientX-stage.getBoundingClientRect().left)/Math.max(1,stage.clientWidth)*2-1,-1,1);
@@ -73,7 +74,7 @@ stage.addEventListener("pointermove", function(e) {
 stage.addEventListener("pointerup", function(e) {
   if(!drag)return;
   const held=timeNow()-drag.start;
-  if(held<350 && Math.abs(state.dragX)<1.2)wave();
+  if(held<350 && drag.distance<14)wave();
   drag=null;
 });
 stage.addEventListener("pointercancel",()=>{drag=null;});
