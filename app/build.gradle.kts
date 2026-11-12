@@ -8,12 +8,18 @@ android {
         applicationId = "com.astra.sevenone"
         minSdk = 26
         targetSdk = 35
-        versionCode = 2
-        versionName = "1.1-avatar"
+        versionCode = 3
+        versionName = "1.2-tracking"
     }
 
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_17
         targetCompatibility = JavaVersion.VERSION_17
     }
+}
+
+// Bundled, on-device vision models. No camera frames sent to cloud APIs.
+dependencies {
+  implementation("com.google.mlkit:face-detection:16.1.7")
+  implementation("com.google.mlkit:pose-detection:18.0.0-beta5")
 }
