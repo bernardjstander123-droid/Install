@@ -1,0 +1,183 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover"/>
+<meta name="theme-color" content="#070c1b"/>
+<title>Astra 7.1</title>
+<style>
+:root{color-scheme:dark;--ink:#edf9ff;--muted:#93aabe;--cyan:#8cecff;--line:rgba(206,242,255,.19)}
+*{box-sizing:border-box}html,body{width:100%;margin:0;height:100%;overflow:hidden}
+body{font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;color:var(--ink);background:#070c1b;user-select:none;-webkit-tap-highlight-color:transparent}
+button,textarea,input{font:inherit}button{cursor:pointer}button:focus-visible,input:focus-visible,textarea:focus-visible{outline:2px solid var(--cyan);outline-offset:2px}
+#space{position:fixed;inset:-30%;pointer-events:none;z-index:-2;background:radial-gradient(ellipse at 71% 18%,rgba(40,162,210,.27),transparent 32%),radial-gradient(ellipse at 21% 82%,rgba(88,66,169,.27),transparent 38%),radial-gradient(ellipse at 41% 48%,rgba(62,101,140,.15),transparent 43%);animation:float 17s ease-in-out alternate infinite}
+#stars{position:fixed;inset:0;z-index:-1;pointer-events:none;background:radial-gradient(circle at 19% 17%,rgba(255,255,255,.40) 1px,transparent 2px),radial-gradient(circle at 75% 66%,rgba(255,255,255,.22) 1px,transparent 2px),linear-gradient(rgba(162,230,253,.025) 1px,transparent 1px),linear-gradient(90deg,rgba(162,230,253,.025) 1px,transparent 1px);background-size:230px 210px,310px 270px,40px 40px,40px 40px;mask-image:linear-gradient(to bottom,transparent,black 40%,transparent)}
+.app{display:flex;flex-direction:column;height:100%;height:100dvh;max-width:1120px;margin:auto;border-left:1px solid rgba(206,238,255,.07);border-right:1px solid rgba(206,238,255,.07);background:linear-gradient(140deg,rgba(37,61,86,.30),rgba(6,13,29,.48) 60%);backdrop-filter:blur(19px);-webkit-backdrop-filter:blur(19px)}
+.top{height:68px;flex-shrink:0;padding:12px 16px;display:flex;align-items:center;gap:13px;border-bottom:1px solid rgba(189,237,255,.13);background:rgba(9,23,42,.25)}
+.iconbtn{height:39px;width:39px;display:grid;place-items:center;background:rgba(176,217,243,.07);border:1px solid var(--line);color:#d4f5ff;border-radius:13px;font-size:22px}
+.logo{height:40px;width:40px;display:grid;place-items:center;border-radius:14px;color:#bcf9ff;background:linear-gradient(140deg,rgba(141,235,255,.35),rgba(114,121,191,.12));border:1px solid rgba(182,236,255,.48);box-shadow:0 0 27px rgba(86,222,243,.16);font-size:22px}
+.brand{min-width:0;flex:1}.brand strong{font-weight:800;letter-spacing:-.7px;font-size:19px}.brand strong span{color:#8ae9f9}.brand small{display:block;font-size:8px;letter-spacing:2.1px;font-weight:800;color:#8dabc1;margin-top:4px}
+.live{display:flex;gap:6px;align-items:center;padding:7px 9px;border:1px solid rgba(132,226,237,.18);border-radius:18px;font-size:9px;color:#a3c4d2;background:rgba(120,223,241,.05);white-space:nowrap}.dot{height:6px;width:6px;background:#93ebdd;border-radius:50%;box-shadow:0 0 10px rgba(147,235,221,.4)}
+main{flex:1;display:flex;flex-direction:column;overflow:hidden}.scroll{flex:1;overflow:auto;overscroll-behavior:contain;padding:20px 17px;scrollbar-width:thin}
+.welcome{display:flex;min-height:100%;padding:24px 10px 12px;align-items:center;justify-content:center;flex-direction:column;text-align:center}
+.symbolouter{height:114px;width:114px;border:1px solid rgba(189,235,255,.20);border-radius:37px;display:grid;place-items:center;box-shadow:0 0 0 15px rgba(101,205,235,.024),0 0 90px rgba(80,210,238,.11);transform:rotate(-5deg);background:rgba(183,232,252,.04)}
+.symbol{width:82px;height:82px;display:grid;place-items:center;border-radius:27px;border:1px solid rgba(164,238,255,.5);background:linear-gradient(136deg,rgba(181,241,254,.27),rgba(71,95,160,.09));font-size:38px;color:#bdffff;text-shadow:0 0 26px rgba(177,244,255,.7)}
+.eyebrow{display:flex;gap:9px;align-items:center;margin-top:41px;font-size:10px;letter-spacing:2px;font-weight:800;color:#97c8d5}.eyebrow:before,.eyebrow:after{content:"";width:22px;height:1px;background:#639eab}
+h1{font-size:clamp(37px,9vw,68px);letter-spacing:-2px;line-height:1.12;margin:18px 0 15px;font-weight:780}h1 em{font-style:normal;color:#b9f5ff;text-shadow:0 0 40px rgba(159,236,255,.26)}
+.subtitle{color:#a8bed0;line-height:1.85;font-size:12px;max-width:420px;margin:0}.subtitle b{color:#d9f3ff}
+.cards{display:flex;flex-direction:column;gap:9px;width:100%;max-width:510px;margin-top:37px}
+.card{width:100%;display:flex;gap:14px;align-items:center;padding:15px 16px;text-align:left;color:#e4f4ff;border:1px solid rgba(193,237,255,.16);border-radius:17px;background:linear-gradient(140deg,rgba(192,227,248,.10),rgba(95,126,175,.05));box-shadow:inset 0 1px rgba(255,255,255,.09);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px)}
+.card .glyph{display:grid;place-items:center;flex-shrink:0;width:34px;height:34px;color:#aaf3fc;font-size:20px}.card strong{display:block;font-size:12px}.card small{display:block;color:#8fa8be;font-size:10px;margin-top:5px}.arrow{margin-left:auto;color:#8db4c6}
+.messages{display:flex;flex-direction:column;gap:23px;padding:16px 0}.message{display:flex;gap:10px;align-items:flex-start}.avatar{display:grid;place-items:center;height:32px;width:32px;flex-shrink:0;border-radius:11px;border:1px solid rgba(176,238,247,.27);background:rgba(129,210,237,.12);color:#b4f8ff;font-weight:700;font-size:13px}.user .avatar{background:rgba(120,130,164,.15);color:#d0d9e9}
+.textbox{min-width:0;flex:1}.role{font-size:11px;font-weight:800;color:#bed6e6;margin:2px 0 8px}.content{color:#d8e9f6;font-size:13px;line-height:1.76;white-space:pre-wrap;overflow-wrap:anywhere;user-select:text}
+.loader{color:#9dc2d7;padding:16px 10px;font-size:12px;display:flex;align-items:center;gap:10px}.loader .dot{animation:pulse 1.2s infinite}.err{border:1px solid rgba(255,157,172,.4);background:rgba(121,33,53,.24);color:#ffd4db;border-radius:13px;padding:11px 13px;font-size:12px;margin-top:11px}
+.composerarea{padding:7px 14px 14px;flex-shrink:0;background:linear-gradient(transparent,rgba(4,10,23,.45))}
+.composer{border:1px solid rgba(177,235,255,.32);background:linear-gradient(140deg,rgba(181,226,245,.12),rgba(116,153,185,.06));border-radius:19px;padding:13px;box-shadow:inset 0 1px rgba(255,255,255,.12),0 12px 38px rgba(0,0,0,.15);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px)}
+textarea{background:none;border:0;outline:none;resize:none;width:100%;min-height:47px;max-height:130px;color:#eff9ff;font-size:13px;line-height:1.5;padding:5px 2px}
+textarea::placeholder{color:#91a8be}.actions{display:flex;align-items:center;justify-content:space-between}.modelchip{border-radius:20px;border:1px solid rgba(177,231,247,.13);background:rgba(157,230,248,.06);color:#a9cedd;font-size:11px;padding:8px 10px;max-width:60%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.send{width:39px;height:39px;border:0;border-radius:12px;background:linear-gradient(130deg,#c2f9ff,#6bdaf0);color:#092436;font-size:21px;box-shadow:0 0 25px rgba(93,211,237,.17);font-weight:700}.send:disabled{opacity:.39}
+.note{text-align:center;color:#809ab1;font-size:9px;margin:10px 0 0}
+.scrim{display:none;position:fixed;inset:0;background:rgba(2,7,17,.7);z-index:20}.scrim.show{display:block}
+.drawer{position:fixed;top:0;left:0;height:100%;width:min(315px,85vw);padding:20px 16px;z-index:21;transform:translateX(-105%);transition:transform .25s;background:linear-gradient(145deg,rgba(34,64,85,.96),rgba(9,17,35,.97));border-right:1px solid var(--line);backdrop-filter:blur(21px);display:flex;flex-direction:column}.drawer.show{transform:translateX(0)}
+.drawer h2{font-size:18px;margin:0 0 26px;padding:5px 8px;color:#bbf4fc}.new{padding:13px;border-radius:13px;background:rgba(122,221,246,.18);color:#e4f9ff;border:1px solid rgba(145,231,247,.28);text-align:left;font-size:13px;font-weight:700}.cap{font-size:10px;letter-spacing:1.8px;color:#89aabe;margin:26px 8px 13px}.history{flex:1;overflow:auto}.thread{display:flex;align-items:center;border-radius:11px;margin:4px 0;background:rgba(150,205,238,.04)}.thread.active{background:rgba(131,230,245,.15)}.thread>button:first-child{flex:1;min-width:0;padding:12px 8px;border:0;background:none;color:#d6eaf7;text-align:left;font-size:12px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.thread .del{border:0;background:none;color:#879caf;font-size:15px;padding:11px}.drawerfoot{display:flex;gap:10px}.drawerfoot button{flex:1;padding:13px 9px;color:#dff7ff;border:1px solid var(--line);background:rgba(220,245,255,.06);border-radius:12px;font-size:12px}
+.modal{position:fixed;inset:0;display:none;place-items:center;z-index:32;background:rgba(2,8,20,.77);padding:16px;backdrop-filter:blur(8px)}.modal.show{display:grid}.panel{background:linear-gradient(145deg,rgba(42,78,102,.97),rgba(12,23,43,.99));border-radius:26px;border:1px solid rgba(197,239,255,.3);box-shadow:0 25px 90px rgba(0,0,0,.6);max-width:500px;width:100%;padding:26px;max-height:90vh;overflow:auto}.panelhead{display:flex;align-items:flex-start;justify-content:space-between}.panel h2{margin:7px 0 4px;font-size:27px;letter-spacing:-1px}.kicker{font-size:9px;letter-spacing:2px;color:#9de4ef;font-weight:800}.field{margin-top:22px}.field label{display:block;color:#d7f1ff;font-size:12px;font-weight:700;margin-bottom:8px}.field input{width:100%;padding:13px;border-radius:11px;border:1px solid rgba(181,234,255,.22);background:rgba(4,13,29,.57);color:#fff;outline:none}.field p{color:#8fabbe;font-size:11px;line-height:1.6}.save{width:100%;padding:14px;border:0;border-radius:13px;background:#aaf4ff;color:#102336;font-weight:800;margin-top:17px}.secondarybtn{width:100%;padding:12px;margin-top:10px;border-radius:12px;border:1px solid rgba(228,247,255,.2);color:#d9f2ff;background:rgba(218,237,255,.06)}
+#toast{position:fixed;bottom:119px;left:50%;transform:translateX(-50%);width:max-content;max-width:90vw;padding:12px 18px;border:1px solid rgba(180,232,248,.3);border-radius:13px;background:#10243a;color:#e1f9ff;font-size:12px;display:none;z-index:33}
+@media(min-width:740px){.app{max-width:100%;}.welcome{padding:45px}.cards{flex-direction:row;max-width:800px}.card{flex:1;min-height:115px}.composerarea{max-width:850px;width:100%;margin:auto}.scroll{padding:28px 8vw}}
+@media(max-height:740px){.symbolouter{height:80px;width:80px;border-radius:25px}.symbol{width:61px;height:61px;border-radius:19px;font-size:30px}.eyebrow{margin-top:25px}.welcome{padding-top:10px}.cards{margin-top:20px}.card{padding:11px}}
+@media(prefers-reduced-motion:reduce){#space,.loader .dot{animation:none}.drawer{transition:none}}
+body.lowblur .app,body.lowblur .composer,body.lowblur .card{backdrop-filter:none;-webkit-backdrop-filter:none}
+@keyframes float{to{transform:translate(2%,3%)}}@keyframes pulse{50%{opacity:.2}}
+</style>
+</head>
+<body>
+<div id="space"></div><div id="stars"></div>
+<div class="app">
+ <header class="top">
+   <button class="iconbtn" id="menu" aria-label="Menu">☰</button>
+   <div class="logo">✧</div><div class="brand"><strong>Astra <span>7.1</span></strong><small>PERSONAL INTELLIGENCE</small></div>
+   <div class="live"><span class="dot"></span><span id="state">PRIVATE</span></div>
+   <button class="iconbtn" id="gear" aria-label="Settings">⚙</button>
+ </header>
+ <main>
+   <div class="scroll" id="scroll">
+     <section id="welcome" class="welcome">
+       <div class="symbolouter"><div class="symbol">✧</div></div>
+       <div class="eyebrow">YOUR WORLD, AMPLIFIED</div>
+       <h1>Think beyond<br/><em>the ordinary.</em></h1>
+       <p class="subtitle">Meet <b>Astra 7.1</b>, your private space for ambitious ideas, brilliant questions, and extraordinary creations.</p>
+       <div class="cards">
+         <button class="card" data-prompt="Help me design an amazing Android application."><span class="glyph">◇</span><span><strong>Build something</strong><small>Apps, ideas and automations</small></span><span class="arrow">↗</span></button>
+         <button class="card" data-prompt="Help me create an original cinematic story."><span class="glyph">✧</span><span><strong>Create freely</strong><small>Stories and new worlds</small></span><span class="arrow">↗</span></button>
+         <button class="card" data-prompt="Teach me something amazing and useful today."><span class="glyph">◎</span><span><strong>Explore the unknown</strong><small>Ask deeper questions</small></span><span class="arrow">↗</span></button>
+       </div>
+     </section>
+     <section id="messages" class="messages" style="display:none" aria-live="polite"></section>
+     <div class="err" id="error" role="alert" style="display:none"></div>
+   </div>
+   <div class="composerarea">
+     <div class="composer">
+       <textarea id="input" rows="2" placeholder="Ask anything. Create something extraordinary..." aria-label="Message Astra 7.1"></textarea>
+       <div class="actions"><button class="modelchip" id="modelchip">gpt-6</button><button class="send" id="send" aria-label="Send message">↗</button></div>
+     </div>
+     <p class="note">✧ Chat history stays on this device. AI requests go to your chosen model provider.</p>
+   </div>
+ </main>
+</div>
+<div class="scrim" id="scrim"></div>
+<aside class="drawer" id="drawer">
+ <h2>✧ Astra 7.1</h2>
+ <button id="new" class="new">＋ New conversation</button>
+ <div class="cap">YOUR CONVERSATIONS</div>
+ <div id="history" class="history"></div>
+ <div class="drawerfoot"><button id="drawer-settings">⚙ Settings</button><button id="clear">Clear history</button></div>
+</aside>
+<div id="modal" class="modal">
+ <div class="panel" role="dialog" aria-label="Astra settings" aria-modal="true">
+  <div class="panelhead"><div><div class="kicker">PERSONAL CONFIGURATION</div><h2>Shape your Astra.</h2></div><button class="iconbtn" id="close" aria-label="Close settings">✕</button></div>
+  <div class="field"><label for="model">OpenAI model ID</label><input id="model" spellcheck="false" value="gpt-6" maxlength="90"/><p>Use a model available in your OpenAI API account. “Astra 7.1” is this app's name, not a separate OpenAI model.</p></div>
+  <div class="field"><label for="key">OpenAI Platform API key</label><input id="key" type="password" placeholder="sk-..." autocomplete="off"/><p>Encrypted on your phone using Android Keystore. Not embedded in the APK, not stored in chat history. The API is billed separately from ChatGPT.</p></div>
+  <div class="field"><label><input id="lowblur" type="checkbox" style="width:auto;vertical-align:middle;margin-right:8px"/> Low blur mode (better battery life)</label></div>
+  <button class="save" id="save">Save settings</button>
+  <button class="secondarybtn" id="removekey">Remove saved API key</button>
+ </div>
+</div>
+<div id="toast" role="status"></div>
+<script>
+(function(){
+ "use strict";
+ const $=id=>document.getElementById(id);
+ const native=window.AstraNative;
+ const state={threads:[],id:null,model:"gpt-6",busy:false};
+ try{const obj=JSON.parse(localStorage.getItem("astra71_threads")||"[]");if(Array.isArray(obj))state.threads=obj.slice(0,40);}catch(e){}
+ try{state.model=localStorage.getItem("astra71_model")||"gpt-6";}catch(e){}
+ const low=localStorage.getItem("astra71_lowblur")==="yes";
+ document.body.classList.toggle("lowblur",low);$("lowblur").checked=low;
+ function toast(msg){$("toast").textContent=msg;$("toast").style.display="block";setTimeout(()=>$("toast").style.display="none",3200);}
+ function persist(){try{localStorage.setItem("astra71_threads",JSON.stringify(state.threads.slice(0,40)))}catch(e){toast("Local storage is unavailable.");}}
+ function thread(){return state.threads.find(t=>t.id===state.id)}
+ function openDrawer(open){$("scrim").classList.toggle("show",open);$("drawer").classList.toggle("show",open)}
+ function openSettings(open){$("modal").classList.toggle("show",open);if(open){$("model").value=state.model;$("key").value="";}}
+ function newChat(){state.id=null;$("input").value="";$("error").style.display="none";openDrawer(false);render()}
+ function renderHistory(){
+   const host=$("history");host.replaceChildren();
+   if(!state.threads.length){const p=document.createElement("p");p.className="cap";p.textContent="Your ideas will appear here.";host.appendChild(p);return;}
+   for(const item of state.threads){const row=document.createElement("div");row.className="thread"+(state.id===item.id?" active":"");
+    const open=document.createElement("button");open.textContent="◌  "+item.title;open.onclick=()=>{state.id=item.id;openDrawer(false);render()};
+    const del=document.createElement("button");del.className="del";del.textContent="✕";del.setAttribute("aria-label","Delete conversation");del.onclick=()=>{state.threads=state.threads.filter(t=>t.id!==item.id);if(state.id===item.id)state.id=null;persist();render()};
+    row.append(open,del);host.append(row);
+   }
+ }
+ function render(){
+   const t=thread(), msgs=t?t.messages:[];
+   $("welcome").style.display=msgs.length?"none":"flex";
+   $("messages").style.display=msgs.length?"flex":"none";
+   const host=$("messages");host.replaceChildren();
+   for(const msg of msgs){const row=document.createElement("div");row.className="message "+msg.role;
+    const avatar=document.createElement("span");avatar.className="avatar";avatar.textContent=msg.role==="user"?"Y":"✧";
+    const area=document.createElement("div");area.className="textbox";const r=document.createElement("div");r.className="role";r.textContent=msg.role==="user"?"You":"Astra 7.1";
+    const c=document.createElement("div");c.className="content";c.textContent=msg.content;
+    area.append(r,c);row.append(avatar,area);host.append(row);}
+   if(state.busy){const p=document.createElement("div");p.className="loader";p.textContent="✧  Astra is thinking";host.append(p)}
+   $("send").disabled=state.busy;
+   $("modelchip").textContent=state.model;
+   $("state").textContent=native&&native.hasKey()?"READY":"SETUP";
+   renderHistory();
+   $("scroll").scrollTop=$("scroll").scrollHeight;
+ }
+ function send(){
+   const text=$("input").value.trim();if(!text||state.busy)return;
+   if(!native||!native.hasKey()){openSettings(true);toast("Add your API key to activate replies.");return;}
+   let t=thread();if(!t){t={id:Date.now().toString(36)+Math.random().toString(36).slice(2),title:text.slice(0,45),messages:[],updated:Date.now()};state.threads.unshift(t);state.id=t.id;}
+   t.messages.push({role:"user",content:text});t.updated=Date.now();
+   $("input").value="";$("error").style.display="none";state.busy=true;persist();render();
+   const request={id:t.id,model:state.model,messages:t.messages.slice(-35).map(m=>({role:m.role,content:m.content}))};
+   native.send(JSON.stringify(request));
+ }
+ window.astraReceive=function(id,reply,error){
+   state.busy=false;const t=state.threads.find(t=>t.id===id);
+   if(error){$("error").textContent=error;$("error").style.display="block";}
+   else if(t){t.messages.push({role:"assistant",content:reply});t.updated=Date.now();persist();}
+   render();
+ };
+ $("menu").onclick=()=>openDrawer(true);$("scrim").onclick=()=>openDrawer(false);
+ $("gear").onclick=()=>openSettings(true);$("drawer-settings").onclick=()=>{openDrawer(false);openSettings(true)};
+ $("new").onclick=newChat;$("clear").onclick=()=>{if(confirm("Delete all saved conversations on this device?")){state.threads=[];newChat();persist()}};
+ $("close").onclick=()=>openSettings(false);$("modal").onclick=e=>{if(e.target===$("modal"))openSettings(false)};
+ $("send").onclick=send;$("input").addEventListener("keydown",e=>{if(e.key==="Enter"&&!e.shiftKey){e.preventDefault();send()}});
+ $("modelchip").onclick=()=>openSettings(true);
+ document.querySelectorAll("[data-prompt]").forEach(b=>b.onclick=()=>{$("input").value=b.dataset.prompt;$("input").focus()});
+ $("save").onclick=()=>{
+  const model=$("model").value.trim();
+  if(!/^[A-Za-z0-9._:/-]{1,90}$/.test(model)){toast("Enter a valid model ID.");return;}
+  const key=$("key").value.trim();
+  if(key){if(!native||!native.saveKey(key)){toast("Couldn't store API key securely.");return;}$("key").value="";}
+  state.model=model;try{localStorage.setItem("astra71_model",model)}catch(e){}
+  document.body.classList.toggle("lowblur",$("lowblur").checked);
+  localStorage.setItem("astra71_lowblur",$("lowblur").checked?"yes":"no");
+  openSettings(false);render();toast("Settings saved.");
+ };
+ $("removekey").onclick=()=>{if(native){native.clearKey();$("key").value="";render();toast("API key removed.")}};
+ render();
+})();
+</script>
+</body></html>
