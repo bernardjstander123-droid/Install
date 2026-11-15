@@ -1,0 +1,22 @@
+name: Zodiac OmniRoute checks
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - 'zodiac-omniroute/**'
+  pull_request:
+    paths:
+      - 'zodiac-omniroute/**'
+jobs:
+  test-cpu-assembly:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install FFmpeg
+        run: sudo apt-get update -qq && sudo apt-get install -y ffmpeg
+      - name: Validate prompts and smoke-test MP4 assembler
+        working-directory: zodiac-omniroute
+        run: |
+          python3 tools/omniroute.py validate
+          python3 -m unittest discover -s tests -v
