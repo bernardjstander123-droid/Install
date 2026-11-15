@@ -1,0 +1,38 @@
+{
+  "schema_version": 1,
+  "series": "Zodiac: The Awakening",
+  "episode": 1,
+  "title": "The Forbidden Awakening",
+  "style": "Photorealistic real-world handheld phone UGC with believable 3D visual effects and synchronized natural audio, vertical 9:16",
+  "canon": {
+    "awakening_age": 13,
+    "zodiac_assigned_by": "date of birth",
+    "scorpio": "rarest, secretly strongest, true maximum power unknown",
+    "pisces": "second-rarest, extraordinary psychic abilities",
+    "protagonist": "Kaien, a 13-year-old boy with medium-brown skin, short black twists and charcoal hoodie"
+  },
+  "video": {"width": 1080, "height": 1920, "fps": 24, "duration_seconds": 15},
+  "shots": [
+    {
+      "id": "EP01-S01",
+      "start_second": 0,
+      "duration_seconds": 5,
+      "prompt": "Natural phone selfie POV, 13-year-old Kaien, medium-brown skin, short black twists, charcoal hoodie, modest modern home birthday table, thirteen candles. A friend filming blurts 'He just turned thirteen!' Kaien blows out candles; at second four he notices the first faint black-violet Scorpio light appearing on his wrist. Believable smartphone autofocus, natural shaky camera, realistic candle light, photoreal CGI glow, ordinary reactions. 5 seconds, vertical 9:16, same protagonist appearance throughout.",
+      "audio": "Friend: 'He just turned thirteen!' Birthday room ambience and an electrical whisper."
+    },
+    {
+      "id": "EP01-S02",
+      "start_second": 5,
+      "duration_seconds": 5,
+      "prompt": "Same 13-year-old Kaien, same charcoal hoodie, same living room and warm lighting. Handheld phone camera darts from his right wrist with a fully illuminated magical BLACK-VIOLET SCORPIO scorpion glyph to a nearby futuristic Zodiac scanner. Screen flickers: UNKNOWN. Kaien reacts in shock, electric sparks with realistic physically grounded purple bounce light, dramatic scanner glitch and a pulsing warning alarm. HD photoreal live-action UGC with composited 3D effects, no cartoon, 5 seconds, portrait 9:16.",
+      "audio": "Kaien gasps, scanner beeps rapidly, electrical crackling."
+    },
+    {
+      "id": "EP01-S03",
+      "start_second": 10,
+      "duration_seconds": 5,
+      "prompt": "Same Kaien, same living room, same charcoal hoodie, realistically handheld smartphone video. All interior lights black out instantly. The Scorpio wrist symbol and Kaien's eyes glow deep violet, creating precise physical light spill across his stunned face. Camera recoils in fear; a quiet otherworldly disembodied voice whispers 'The forbidden one has awakened.' End with a sudden hard cut to black. No violence or gore. Photorealistic supernatural CGI, 5 seconds, 9:16.",
+      "audio": "Electrical power-off pop, tense sub-bass swell, whisper: 'The forbidden one has awakened.'"
+    }
+  ]
+}
